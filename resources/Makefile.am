@@ -1,6 +1,3 @@
-EXTRA_DIST = Info.plist Polly.icns
-
-
 gamedir = ${datarootdir}/${PACKAGE_TARNAME}
 
 game_DATA = \
@@ -18,3 +15,5 @@ game_DATA = \
 	title.png \
 	weeds.jpg \
 	world.xml
+
+EXTRA_DIST = $(game_DATA) Info.plist Polly.icns

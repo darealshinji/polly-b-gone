@@ -1,8 +1,11 @@
-AC_INIT([Polly-B-Gone], [1.0], [http://bost.ocks.org/mike/])
+AC_INIT([Polly-B-Gone], [1.0],
+        [https://github.com/mbostock/polly-b-gone/issues], [],
+        [https://github.com/mbostock/polly-b-gone])
 AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror dist-bzip2 dist-xz foreign subdir-objects])
+AM_SILENT_RULES([yes])
 
 AC_PROG_CC
 AC_PROG_CXX

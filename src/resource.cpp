@@ -7,11 +7,10 @@
 #ifdef STORAGE_PATH
   #include <sys/types.h>
   #include <sys/stat.h>
+  struct stat info;
 #endif
 
 #include "resource.h"
-
-struct stat info;
 
 using namespace mbostock;
 
