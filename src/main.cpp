@@ -29,7 +29,7 @@ static bool run = true;
 static bool fullScreen = false;
 
 static World* world = NULL;
-static bool wireframe = false;
+//static bool wireframe = false;
 
 static Shader* shaders[] = {
   Shaders::defaultShader(),

@@ -57,8 +57,8 @@ namespace mbostock {
     Vector origin_;
     Vector axis_;
     float startAngle_;
-    float angle_;
     float speed_;
+    float angle_;
     float matrix_[9];
   };
 

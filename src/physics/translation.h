@@ -42,8 +42,8 @@ namespace mbostock {
 
     Vector x0_;
     Vector x1_;
-    float s_;
     float u_;
+    float s_;
     float kd_;
     Vector v_;
     Vector dv_;
