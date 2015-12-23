@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Polly-B-Gone
+Type=Application
+GenericName=polly-b-gone
+Comment=A physics platform game about a plucky wheeled robot named Polly
+Exec=polly-b-gone
+Icon=polly-b-gone
+Terminal=false
+Hidden=false
+Categories=Game;
