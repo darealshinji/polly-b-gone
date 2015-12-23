@@ -3,7 +3,7 @@
 #ifndef MBOSTOCK_LIGHTING_H
 #define MBOSTOCK_LIGHTING_H
 
-#include <OpenGL/gl.h>
+#include <GL/gl.h>
 
 namespace mbostock {
 

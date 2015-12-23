@@ -1,11 +1,11 @@
 // -*- C++ -*-
 
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <TinyXML/tinyxml.h>
+#include <tinyxml.h>
 
 #include "room.h"
 #include "shader.h"
