@@ -23,6 +23,10 @@ It has only been tested on 10.5 (Leopard), but it probably works on other versio
 
 The entire game world for Polly-B-Gone is specified as an XML file. You can edit world.xml to create new levels, new puzzles, and even change the music, textures and lighting! See the [wiki](/mbostock/polly-b-gone/wiki) for details.
 
+## Building
+
+The following dependencies are required for building on Ubuntu/Debian: `automake pkg-config libgl1-mesa-dev libglu1-mesa-dev libgles2-mesa-dev freeglut3-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libtinyxml-dev`
+
 ## Third-Party Libraries
 
 Polly-B-Gone uses the [Simple DirectMedia Layer](http://www.libsdl.org/) Library version 1.2.13, which is distributed under the GNU Lesser General Public License version 2.1 or newer. Polly-B-Gone also uses [SDL_image](http://www.libsdl.org/projects/SDL_image/) 1.2.7 and [SDL_mixer](http://www.libsdl.org/projects/SDL_mixer/) 1.2.8 which are distributed under the same license. Polly-B-Gone uses [TinyXML](http://www.grinninglizard.com/tinyxml/) version 2.5.3, which is distributed under the ZLib license, and is copyright 2006 Lee Thomason.
