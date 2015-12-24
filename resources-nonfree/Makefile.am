@@ -33,16 +33,16 @@ game_DATA = \
 EXTRA_DIST += $(game_DATA)
 
 
-desktopdir = $(datadir)/applications
+desktopdir = $(datarootdir)/applications
 desktop_DATA = polly-b-gone.desktop
 EXTRA_DIST += $(desktop_DATA)
 
 
 install-icons:
 	for size in 16 22 24 32 48 64 96 128; do \
-	  $(MKDIR_P) $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/; \
+	  $(MKDIR_P) $(DESTDIR)$(datarootdir)/icons/hicolor/$${size}x$${size}/apps/; \
 	  $(INSTALL_DATA) $(srcdir)/polly-b-gone_$${size}x$${size}.png \
-	      $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/polly-b-gone.png; \
+	      $(DESTDIR)$(datarootdir)/icons/hicolor/$${size}x$${size}/apps/polly-b-gone.png; \
 	done
 
 install-data-local: install-icons
