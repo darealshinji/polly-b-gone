@@ -12,7 +12,7 @@ AC_PROG_CXX
 
 CXXFLAGS="$CXXFLAGS -Wall -Wno-switch"
 
-# usage: AX_CHECK_PKG_LIB(prefix, pkg-module, library, function, headers)
+# usage: AX_CHECK_PKG_LIB(prefix, pkg-module, library, function)
 m4_define([AX_CHECK_PKG_LIB], [{
     PKG_CHECK_MODULES([$1], [$2], [], [
         AC_CHECK_LIB([$3], [$4], [LIBS="$LIBS -l$3"], [exit 1])
