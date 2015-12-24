@@ -1,4 +1,12 @@
-EXTRA_DIST = $(NULL)
+EXTRA_DIST = \
+	COPYING.CC0 \
+	COPYING.CC-BY-2.5 \
+	COPYING.CC-BY-3.0 \
+	COPYING.CC-BY-SA-3.0 \
+	COPYING.GPL-2.0 \
+	COPYING.GPL-3.0 \
+	COPYING.LGPL-2.1 \
+	COPYING.LGPL-3.0
 
 # OSX .app files
 EXTRA_DIST += Info.plist Polly.icns
@@ -15,8 +23,20 @@ EXTRA_DIST += \
 	polly-b-gone_128x128.png
 
 
-gamedir = $(pkgdatadir)
-game_DATA = \
+game_DATA_NONFREE = \
+	non-free/04ptboyf.ogg \
+	non-free/ceramic.jpg \
+	non-free/clovers.jpg \
+	non-free/concrete.jpg \
+	non-free/drain.jpg \
+	non-free/half.ogg \
+	non-free/hidnseek.ogg \
+	non-free/ivy.jpg \
+	non-free/metal.jpg \
+	non-free/world.xml
+EXTRA_DIST += $(game_DATA_NONFREE)
+
+game_DATA_GPL = \
 	ceramic.jpg \
 	clovers.jpg \
 	concrete.jpg \
@@ -25,12 +45,23 @@ game_DATA = \
 	ivy.jpg \
 	loop.ogg \
 	metal.jpg \
+	outro.ogg \
+	world.xml
+EXTRA_DIST += $(game_DATA_GPL)
+
+game_DATA_ANY = \
 	normal.frag \
 	normal.vert \
-	outro.ogg \
-	title.png \
-	world.xml
-EXTRA_DIST += $(game_DATA)
+	title.png
+EXTRA_DIST += $(game_DATA_ANY)
+
+gamedir = $(pkgdatadir)
+if NONFREE
+game_DATA = $(game_DATA_NONFREE)
+else
+game_DATA = $(game_DATA_GPL)
+endif
+game_DATA += $(game_DATA_ANY)
 
 
 desktopdir = $(datarootdir)/applications

@@ -28,6 +28,10 @@ AX_CHECK_PKG_LIB([TINYXML], [tinyxml], [tinyxml], [TiXmlNode])
 
 AC_CHECK_HEADERS([GL/gl.h GL/glu.h GL/glut.h GLES2/gl2.h], [], [exit 1])
 
+AC_ARG_ENABLE([non-free],
+    AS_HELP_STRING([--enable-non-free], [install original non-free game files]))
+AM_CONDITIONAL([NONFREE], [test "x$enable_non_free" = "xyes"])
+
 AC_CONFIG_FILES([Makefile
                  resources/Makefile
                  src/Makefile])
