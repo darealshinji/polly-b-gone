@@ -156,8 +156,11 @@ static void handleKeyUp(SDL_Event* event) {
     case SDLK_d: world->player().stop(Player::RIGHT); break;
     case SDLK_w: world->player().stop(Player::FORWARD); break;
     case SDLK_SPACE: world->togglePaused(); break;
+#ifdef __APPLE__
     case SDLK_q: if (!(event->key.keysym.mod & KMOD_META)) break;
+#endif
     case SDLK_ESCAPE: run = false; break;
+    case SDLK_F4: if (event->key.keysym.mod & KMOD_ALT) run = false; break; // Alt+F4
     case SDLK_F9: toggleShader(); break;
     case SDLK_F10: world->toggleDebug(); break;
     case SDLK_F11: toggleFullScreen(); break;
