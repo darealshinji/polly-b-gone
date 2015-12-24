@@ -2,7 +2,9 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
+#ifndef __APPLE__
+  #include <GL/glut.h>
+#endif
 #include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,9 +208,11 @@ int main(int argc, char** argv) {
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
 
+#ifndef __APPLE__
   // required by glutSolidTorus() in player.cpp, otherwise
   // the game doesn't run on Linux
   glutInit(&argc, argv);
+#endif
 
   Sounds::initialize();
   world = Worlds::fromFile("world.xml");
