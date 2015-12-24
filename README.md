@@ -21,7 +21,7 @@ It has only been tested on 10.5 (Leopard), but it probably works on other versio
 
 ## Documentation
 
-The entire game world for Polly-B-Gone is specified as an XML file. You can edit world.xml to create new levels, new puzzles, and even change the music, textures and lighting! See the [wiki](/mbostock/polly-b-gone/wiki) for details.
+The entire game world for Polly-B-Gone is specified as an XML file. You can edit world.xml to create new levels, new puzzles, and even change the music, textures and lighting! See the [wiki](https://github.com/darealshinji/polly-b-gone/wiki) for details.
 
 ## Building
 
