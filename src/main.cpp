@@ -116,22 +116,27 @@ static void toggleFullScreen() {
   }
 }
 
+#ifdef __APPLE__
+  #define POLLY_SKIP KMOD_META
+#else
+  #define POLLY_SKIP KMOD_CTRL
+#endif
 static void handleKeyDown(SDL_Event* event) {
   switch (event->key.keysym.sym) {
     case SDLK_LEFT: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & POLLY_SKIP) {
         world->previousRoom();
       }
       break;
     }
     case SDLK_DOWN: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & POLLY_SKIP) {
         world->resetPlayer();
       }
       break;
     }
     case SDLK_RIGHT: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & POLLY_SKIP) {
         world->nextRoom();
       }
       break;
@@ -142,6 +147,7 @@ static void handleKeyDown(SDL_Event* event) {
     case SDLK_w: world->player().move(Player::FORWARD); break;
   }
 }
+#undef POLLY_SKIP
 
 static void handleKeyUp(SDL_Event* event) {
   switch (event->key.keysym.sym) {
