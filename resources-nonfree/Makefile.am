@@ -17,17 +17,17 @@ EXTRA_DIST += \
 
 gamedir = $(pkgdatadir)
 game_DATA = \
+	04ptboyf.ogg \
 	ceramic.jpg \
 	clovers.jpg \
 	concrete.jpg \
 	drain.jpg \
-	intro.ogg \
+	half.ogg \
+	hidnseek.ogg \
 	ivy.jpg \
-	loop.ogg \
 	metal.jpg \
 	normal.frag \
 	normal.vert \
-	outro.ogg \
 	title.png \
 	world.xml
 EXTRA_DIST += $(game_DATA)
