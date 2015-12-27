@@ -1,3 +1,6 @@
+#ifndef TIXML_USE_STL
+  #define TIXML_USE_STL
+#endif
 #include <tinyxml.h>
 #include <iostream>
 #include <list>
@@ -779,8 +782,8 @@ Vector XmlWorldBuilder::parseVector(TiXmlElement* e) {
 }
 
 bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name) {
-  static const std::string TRUE = "true";
-  return TRUE == e->Attribute(name);
+  static const std::string istrue = "true";
+  return istrue == e->Attribute(name);
 }
 
 bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name, bool d) {
@@ -788,8 +791,8 @@ bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name, bool d) {
   if (value == NULL) {
     return d;
   }
-  static const std::string TRUE = "true";
-  return TRUE == value;
+  static const std::string istrue = "true";
+  return istrue == value;
 }
 
 World* Worlds::fromFile(const char* path) {

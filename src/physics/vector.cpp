@@ -33,7 +33,7 @@ const Vector& Vector::INF() {
 }
 
 static float randomf() {
-  return random() / (float) RAND_MAX;
+  return rand() / (float) RAND_MAX;
 }
 
 Vector Vector::min(const Vector& a, const Vector& b) {

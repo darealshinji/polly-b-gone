@@ -4,7 +4,7 @@
 #include <ios>
 #include <iostream>
 
-#ifdef STORAGE_PATH
+#if defined(STORAGE_PATH) && !defined(__WIN32__)
   #include <sys/types.h>
   #include <sys/stat.h>
   struct stat info;
@@ -18,7 +18,7 @@ const char* Resources::path() {
 #ifdef __APPLE__
   return "Contents/Resources/";
 #else
-  #ifdef STORAGE_PATH
+  #if defined(STORAGE_PATH) && !defined(__WIN32__)
     // check if STORAGE_PATH exists
     // (i.e. "/usr/local/share/polly-b-gone/"),
     // otherwise fall back to "resources/

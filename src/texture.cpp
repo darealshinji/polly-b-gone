@@ -11,6 +11,13 @@
 #include "resource.h"
 #include "texture.h"
 
+#ifndef GL_BGRA
+  #define GL_BGRA GL_RGBA
+#endif
+#ifndef GL_BGR
+  #define GL_BGR GL_RGB
+#endif
+
 using namespace mbostock;
 
 class TextureImpl : public Texture {

@@ -13,6 +13,7 @@ polly_b_gone_CXXFLAGS = \
 	$(GL_CFLAGS) \
 	$(GLU_CFLAGS) \
 	$(GLUT_CFLAGS) \
+	$(GLEW_CFLAGS) \
 	$(SDL_CFLAGS) \
 	$(SDL_IMAGE_CFLAGS) \
 	$(SDL_MIXER_CFLAGS) \
@@ -22,6 +23,7 @@ polly_b_gone_LDADD = \
 	$(GL_LIBS) \
 	$(GLU_LIBS) \
 	$(GLUT_LIBS) \
+	$(GLEW_LIBS) \
 	$(SDL_LIBS) \
 	$(SDL_IMAGE_LIBS) \
 	$(SDL_MIXER_LIBS) \

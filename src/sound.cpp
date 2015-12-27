@@ -143,9 +143,9 @@ Sound& Sounds::fromFile(const char* path) {
   /* If not, load the new sound. */
   std::string spath(path);
   SoundImpl* sound =
-      ((spath.rfind(".mid", std::string::npos, 4) != uint(-1))
-       || (spath.rfind(".ogg", std::string::npos, 4) != uint(-1))
-       || (spath.rfind(".mp3", std::string::npos, 4) != uint(-1)))
+      ((spath.rfind(".mid", std::string::npos, 4) != size_t(-1))
+       || (spath.rfind(".ogg", std::string::npos, 4) != size_t(-1))
+       || (spath.rfind(".mp3", std::string::npos, 4) != size_t(-1)))
           ? (SoundImpl*) new MusicImpl(path)
           : (SoundImpl*) new ChunkImpl(path);
   sounds().push_back(sound);
