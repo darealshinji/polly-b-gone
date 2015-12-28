@@ -1,13 +1,15 @@
 // -*- C++ -*-
 
-#include <fstream>
-#include <ios>
-#include <iostream>
+#include <fstream>  /* std::ifstream */
+#include <ios>  /* std::ios */
+#include <iostream>  /* std::ios, std::cerr, std::endl */
+#include <string>  /* std::string */
 
 #if defined(STORAGE_PATH) && !defined(__WIN32__)
+  #include <cstdlib>  /* std::exit, EXIT_FAILURE */
   #include <sys/types.h>
   #include <sys/stat.h>
-  struct stat info;
+  struct stat info_resource;
 #endif
 
 #include "resource.h"
@@ -19,13 +21,15 @@ const char* Resources::path() {
   return "Contents/Resources/";
 #else
   #if defined(STORAGE_PATH) && !defined(__WIN32__)
-    // check if STORAGE_PATH exists
-    // (i.e. "/usr/local/share/polly-b-gone/"),
-    // otherwise fall back to "resources/
-    if( stat( STORAGE_PATH, &info ) != 0 )
+    if( stat( "resources/", &info_resource ) == 0 )
       return "resources/";
-    else
+    else if( stat( STORAGE_PATH, &info_resource ) == 0 )
       return STORAGE_PATH;
+    else if( stat( "/usr/local/share/polly-b-gone/", &info_resource ) == 0 )
+      return "/usr/local/share/polly-b-gone/";
+    else
+      std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
+      std::exit (EXIT_FAILURE);
   #else
     return "resources/";
   #endif

@@ -10,6 +10,13 @@
 #include <stdlib.h>
 #include <tinyxml.h>
 
+#if defined(STORAGE_PATH) && !defined(__WIN32__)
+  #include <iostream>  /* std::ios, std::cerr, std::endl */
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  struct stat info_main;
+#endif
+
 #include "room.h"
 #include "shader.h"
 #include "sound.h"
@@ -221,6 +228,15 @@ int main(int argc, char** argv) {
   // required by glutSolidTorus() in player.cpp, otherwise
   // the game doesn't run on Linux
   glutInit(&argc, argv);
+
+  #if defined(STORAGE_PATH) && !defined(__WIN32__)
+    if( stat( "resources/", &info_main ) == 0 )
+      std::cout << "loading game files from: resources/" << std::endl;
+    else if( stat( STORAGE_PATH, &info_main ) == 0 )
+      std::cout << "loading game files from: " << STORAGE_PATH << std::endl;
+    else if( stat( "/usr/local/share/polly-b-gone/", &info_main) == 0 )
+      std::cout << "loading game files from: /usr/local/share/polly-b-gone/" << std::endl;
+  #endif
 #endif
 
   Sounds::initialize();
