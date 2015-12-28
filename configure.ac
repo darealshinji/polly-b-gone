@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 # usage: AX_CHECK_PKG_LIB(prefix, pkg-module, library, headers)
 m4_define([AX_CHECK_PKG_LIB], [{
     PKG_CHECK_MODULES([$1], [$2], [], [
@@ -45,6 +44,23 @@ m4_define([AX_CHECK_PKG_LIB], [{
     ])
 }])
 
+# usage: AX_CHECK_CXXFLAGS(flags)
+m4_define([AX_CHECK_CXXFLAGS], [{
+    CXXFLAGS_backup="$CXXFLAGS"
+    CXXFLAGS="-Werror $1"
+    AC_MSG_CHECKING([if $CXX understands $1])
+    AC_LANG([C++])
+    AC_COMPILE_IFELSE([
+        AC_LANG_SOURCE(
+            [[int main() { return 0; }]]
+        )
+    ], [AC_MSG_RESULT([yes])
+        addflag="$1"],
+       [AC_MSG_RESULT([no])]
+    )
+    CXXFLAGS="$addflag $CXXFLAGS_backup"
+}])
+
 
 AC_INIT([Polly-B-Gone], [1.0],
         [https://github.com/mbostock/polly-b-gone/issues], [],
@@ -58,7 +74,9 @@ AM_SILENT_RULES([yes])
 AC_PROG_CC
 AC_PROG_CXX
 
-CXXFLAGS="$CXXFLAGS -Wall -Wno-switch"
+CXXFLAGS="$CXXFLAGS -Wall"
+AX_CHECK_CXXFLAGS([-Wno-switch])
+AX_CHECK_CXXFLAGS([-Wno-maybe-uninitialized])
 
 
 # math library
