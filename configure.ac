@@ -24,6 +24,7 @@
 
 # usage: AX_CHECK_PKG_LIB(prefix, pkg-module, library, headers)
 m4_define([AX_CHECK_PKG_LIB], [{
+    AC_LANG_PUSH([C++])
     PKG_CHECK_MODULES([$1], [$2], [], [
         # library check
         LIBS_backup="$LIBS"
@@ -42,6 +43,7 @@ m4_define([AX_CHECK_PKG_LIB], [{
             AC_CHECK_HEADERS([$4], [], [exit 1])
         ])
     ])
+    AC_LANG_POP([C++])
 }])
 
 # usage: AX_CHECK_CXXFLAGS(flags)
@@ -49,7 +51,7 @@ m4_define([AX_CHECK_CXXFLAGS], [{
     CXXFLAGS_backup="$CXXFLAGS"
     CXXFLAGS="-Werror $1"
     AC_MSG_CHECKING([if $CXX understands $1])
-    AC_LANG([C++])
+    AC_LANG_PUSH([C++])
     AC_COMPILE_IFELSE([
         AC_LANG_SOURCE(
             [[int main() { return 0; }]]
@@ -59,6 +61,7 @@ m4_define([AX_CHECK_CXXFLAGS], [{
        [AC_MSG_RESULT([no])]
     )
     CXXFLAGS="$addflag $CXXFLAGS_backup"
+    AC_LANG_POP([C++])
 }])
 
 
@@ -124,8 +127,7 @@ AX_CHECK_PKG_LIB([SDL], [sdl < 2], [SDL], [SDL/SDL.h SDL/SDL_error.h])
 AX_CHECK_PKG_LIB([SDL_IMAGE], [SDL_image < 2], [SDL_image], [SDL/SDL_image.h])
 AX_CHECK_PKG_LIB([SDL_MIXER], [SDL_mixer < 2], [SDL_mixer], [SDL/SDL_mixer.h])
 
-# tinyxml.h check fails, dunno why
-AX_CHECK_PKG_LIB([TINYXML], [tinyxml], [tinyxml])
+AX_CHECK_PKG_LIB([TINYXML], [tinyxml], [tinyxml], [tinyxml.h])
 
 
 AC_ARG_ENABLE([non-free],
