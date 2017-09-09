@@ -28,12 +28,14 @@ const Shape& Escalator::shape() const {
 }
 
 void Escalator::step(const ParticleSimulator& s) {
+  (void)s;
   offset_.x = fmodf(offset_.x + velocity_.x, 1.f);
   offset_.z = fmodf(offset_.z + velocity_.z, 1.f);
   model_.setTexOffset(-offset_.x, -offset_.z);
 }
 
 Vector Escalator::velocity(const Vector& x) const {
+  (void)x;
   return velocity_;
 }
 

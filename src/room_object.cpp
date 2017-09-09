@@ -10,6 +10,7 @@ bool RoomObject::dynamic() const {
 }
 
 Vector RoomObject::velocity(const Vector& x) const {
+  (void)x;
   return Vector::ZERO();
 }
 
@@ -21,12 +22,16 @@ void RoomObject::resetForces() {
 }
 
 void RoomObject::applyForce(UnaryForce& force) {
+  (void)force;
 }
 
 void RoomObject::applyWeight(float w, const Vector& x) {
+  (void)w;
+  (void)x;
 }
 
 void RoomObject::step(const ParticleSimulator& s) {
+  (void)s;
 }
 
 void RoomObject::constrainInternal() {

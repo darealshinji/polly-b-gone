@@ -74,12 +74,11 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror dist-bzip2 dist-xz foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
+: ${CFLAGS="-Wall -g -O2"}
+: ${CXXFLAGS="-Wall -g -O2"}
+
 AC_PROG_CC
 AC_PROG_CXX
-
-CXXFLAGS="$CXXFLAGS -Wall"
-AX_CHECK_CXXFLAGS([-Wno-switch])
-AX_CHECK_CXXFLAGS([-Wno-maybe-uninitialized])
 
 
 # math library

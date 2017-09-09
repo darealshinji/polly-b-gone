@@ -240,7 +240,7 @@ void XmlWorldBuilder::parseLightDiffuse(Light& l, TiXmlElement* e) {
 
 void XmlWorldBuilder::parseLightPosition(Light& l, TiXmlElement* e) {
   if (e != NULL) {
-    float x, y, z, w;
+    float x = 0.f, y = 0.f, z = 0.f, w = 0.f;
     e->QueryFloatAttribute("x", &x);
     e->QueryFloatAttribute("y", &y);
     e->QueryFloatAttribute("z", &z);
@@ -251,7 +251,7 @@ void XmlWorldBuilder::parseLightPosition(Light& l, TiXmlElement* e) {
 
 void XmlWorldBuilder::parseLightSpotDirection(Light& l, TiXmlElement* e) {
   if (e != NULL) {
-    float x, y, z;
+    float x = 0.f, y = 0.f, z = 0.f;
     e->QueryFloatAttribute("x", &x);
     e->QueryFloatAttribute("y", &y);
     e->QueryFloatAttribute("z", &z);
@@ -261,22 +261,22 @@ void XmlWorldBuilder::parseLightSpotDirection(Light& l, TiXmlElement* e) {
 
 void XmlWorldBuilder::parseLightAttributes(Light& l, TiXmlElement* e) {
   if (e->Attribute("spot-exponent")) {
-    float f;
+    float f = 0.f;
     e->QueryFloatAttribute("spot-exponent", &f);
     l.setSpotExponent(f);
   }
   if (e->Attribute("constant-attenuation")) {
-    float f;
+    float f = 0.f;
     e->QueryFloatAttribute("constant-attenuation", &f);
     l.setConstantAttenuation(f);
   }
   if (e->Attribute("linear-attenuation")) {
-    float f;
+    float f = 0.f;
     e->QueryFloatAttribute("linear-attenuation", &f);
     l.setLinearAttenuation(f);
   }
   if (e->Attribute("quadratic-attenuation")) {
-    float f;
+    float f = 0.f;
     e->QueryFloatAttribute("quadratic-attenuation", &f);
     l.setQuadraticAttenuation(f);
   }
@@ -663,7 +663,7 @@ RoomObject* XmlWorldBuilder::parseRoomBall(TiXmlElement* e) {
 }
 
 RoomObject* XmlWorldBuilder::parseRoomFan(TiXmlElement* e) {
-  float r, s;
+  float r = 0.f, s = 0.f;
   e->QueryFloatAttribute("radius", &r);
   e->QueryFloatAttribute("speed", &s);
   Fan* f = new Fan(

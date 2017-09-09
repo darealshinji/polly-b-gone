@@ -5,18 +5,13 @@
 #ifndef __APPLE__
   #include <GL/glut.h>
 #endif
+#include <iostream>
 #include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <tinyxml.h>
 
-#if defined(STORAGE_PATH) && !defined(__WIN32__)
-  #include <iostream>  /* std::ios, std::cerr, std::endl */
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  struct stat info_main;
-#endif
-
+#include "resource.h"
 #include "room.h"
 #include "shader.h"
 #include "sound.h"
@@ -152,6 +147,7 @@ static void handleKeyDown(SDL_Event* event) {
     case SDLK_s: world->player().move(Player::BACKWARD); break;
     case SDLK_d: world->player().move(Player::RIGHT); break;
     case SDLK_w: world->player().move(Player::FORWARD); break;
+    default: break;
   }
 }
 #undef POLLY_SKIP
@@ -171,6 +167,7 @@ static void handleKeyUp(SDL_Event* event) {
     case SDLK_F9: toggleShader(); break;
     case SDLK_F10: world->toggleDebug(); break;
     case SDLK_F11: toggleFullScreen(); break;
+    default: break;
   }
 }
 
@@ -225,18 +222,19 @@ int main(int argc, char** argv) {
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
 
 #ifndef __APPLE__
+  #if defined(STORAGE_PATH) && !defined(__WIN32__)
+    if (Resources::path()) {
+      std::cout << "loading game files from: " << Resources::path() << std::endl;
+    } else {
+      std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
+      SDL_Quit();
+      return 1;
+    }
+  #endif
+
   // required by glutSolidTorus() in player.cpp, otherwise
   // the game doesn't run on Linux
   glutInit(&argc, argv);
-
-  #if defined(STORAGE_PATH) && !defined(__WIN32__)
-    if( stat( "resources/", &info_main ) == 0 )
-      std::cout << "loading game files from: resources/" << std::endl;
-    else if( stat( STORAGE_PATH, &info_main ) == 0 )
-      std::cout << "loading game files from: " << STORAGE_PATH << std::endl;
-    else if( stat( "/usr/local/share/polly-b-gone/", &info_main) == 0 )
-      std::cout << "loading game files from: /usr/local/share/polly-b-gone/" << std::endl;
-  #endif
 #endif
 
   Sounds::initialize();

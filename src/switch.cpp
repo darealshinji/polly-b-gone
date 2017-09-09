@@ -38,6 +38,8 @@ void Switch::reset() {
 }
 
 void Switch::applyWeight(float w, const Vector& x) {
+  (void)w;
+  (void)x;
   if (activeMaterial_ != NULL) {
     setMaterial(*activeMaterial_);
     setTopMaterial(*activeMaterial_);

@@ -9,7 +9,7 @@ TransformingRoomObject::TransformingRoomObject(RoomObject* o)
 }
 
 TransformingRoomObject::~TransformingRoomObject() {
-  delete object_;
+  //delete object_;
 }
 
 void TransformingRoomObject::step(const ParticleSimulator& s) {

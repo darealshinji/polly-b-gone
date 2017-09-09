@@ -318,6 +318,8 @@ void Player::resetForces() {
       rightWheel_.applyForce(z_, -backwardForce);
       break;
     }
+    default:
+      break;
   }
 
   /* Turning forces. */
@@ -332,6 +334,8 @@ void Player::resetForces() {
       rightWheel_.applyForce(z_, turnForce);
       break;
     }
+    default:
+      break;
   }
 
   /* Uniform drag forces. */
@@ -434,6 +438,7 @@ bool Player::constrainOutside(const RoomObject& o) {
 }
 
 void Player::constrainGlancing(const RoomObject& o) {
+  (void)o;
   const Projection& j = Constraints::projection();
 
   /*
@@ -580,6 +585,8 @@ void Player::move(Direction d) {
       }
       break;
     }
+    default:
+      break;
   }
 }
 
@@ -622,5 +629,7 @@ void Player::stop(Direction d) {
       }
       break;
     }
+    default:
+      break;
   }
 }

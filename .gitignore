@@ -26,6 +26,8 @@ polly-b-gone-1.0.tar.xz
 *.log
 *~
 
+.vscode/
+
 *.o
 *.exe
 *.app

@@ -1,14 +1,14 @@
 // -*- C++ -*-
 
-#include <fstream>  /* std::ifstream */
-#include <ios>  /* std::ios */
-#include <iostream>  /* std::ios, std::cerr, std::endl */
-#include <string>  /* std::string */
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <string>
 
-#if defined(STORAGE_PATH) && !defined(__WIN32__)
-  #include <cstdlib>  /* std::exit, EXIT_FAILURE */
+#if defined(STORAGE_PATH) && !defined(__WIN32__) && !defined(__APPLE__)
   #include <sys/types.h>
   #include <sys/stat.h>
+  #include <unistd.h>
   struct stat info_resource;
 #endif
 
@@ -21,15 +21,15 @@ const char* Resources::path() {
   return "Contents/Resources/";
 #else
   #if defined(STORAGE_PATH) && !defined(__WIN32__)
-    if( stat( "resources/", &info_resource ) == 0 )
+    if (stat("resources/", &info_resource) == 0) {
       return "resources/";
-    else if( stat( STORAGE_PATH, &info_resource ) == 0 )
+    } else if (stat(STORAGE_PATH, &info_resource) == 0) {
       return STORAGE_PATH;
-    else if( stat( "/usr/local/share/polly-b-gone/", &info_resource ) == 0 )
+    } else if (stat("/usr/local/share/polly-b-gone/", &info_resource) == 0) {
       return "/usr/local/share/polly-b-gone/";
-    else
-      std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
-      std::exit (EXIT_FAILURE);
+    } else {
+      return NULL;
+    }
   #else
     return "resources/";
   #endif

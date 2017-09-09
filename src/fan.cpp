@@ -143,6 +143,7 @@ const Shape& Fan::shape() const {
 }
 
 void Fan::step(const ParticleSimulator& s) {
+  (void)s;
   a_ += s_;
 }
 
