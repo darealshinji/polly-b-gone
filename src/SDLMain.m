@@ -18,28 +18,28 @@
 @end
 
 /* Use this flag to determine whether we use SDLMain.nib or not */
-#define		SDL_USE_NIB_FILE	0
+#define SDL_USE_NIB_FILE 0
 
 /* Use this flag to determine whether we use CPS (docking) or not */
-#define		SDL_USE_CPS		1
+#define SDL_USE_CPS 1
 #ifdef SDL_USE_CPS
 /* Portions of CPS.h */
 typedef struct CPSProcessSerNum
 {
-	UInt32		lo;
-	UInt32		hi;
+    UInt32 lo;
+    UInt32 hi;
 } CPSProcessSerNum;
 
-extern OSErr	CPSGetCurrentProcess( CPSProcessSerNum *psn);
-extern OSErr 	CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
-extern OSErr	CPSSetFrontProcess( CPSProcessSerNum *psn);
+extern OSErr CPSGetCurrentProcess( CPSProcessSerNum *psn);
+extern OSErr CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
+extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 #endif /* SDL_USE_CPS */
 
-static int    gArgc;
-static char  **gArgv;
-static BOOL   gFinderLaunch;
-static BOOL   gCalledAppMainline = FALSE;
+static int gArgc;
+static char **gArgv;
+static BOOL gFinderLaunch;
+static BOOL gCalledAppMainline = FALSE;
 
 static NSString *getApplicationName(void)
 {
@@ -48,11 +48,13 @@ static NSString *getApplicationName(void)
 
     /* Determine the application name */
     dict = (NSDictionary *)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
-    if (dict)
-        appName = [dict objectForKey: @"CFBundleName"];
+    if (dict) {
+        appName = [dict objectForKey: @"CFBundleName"]
+    }
     
-    if (![appName length])
+    if (![appName length]) {
         appName = [[NSProcessInfo processInfo] processName];
+    }
 
     return appName;
 }
@@ -87,13 +89,12 @@ static NSString *getApplicationName(void)
     if (shouldChdir)
     {
         char appdir[MAXPATHLEN];
-		CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-		if (CFURLGetFileSystemRepresentation(url, true, (UInt8 *)appdir, MAXPATHLEN)) {
-	        assert ( chdir (appdir) == 0 );   /* chdir to the binary app */
-		}
-		CFRelease(url);
-	}
-
+        CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+        if (CFURLGetFileSystemRepresentation(url, true, (UInt8 *)appdir, MAXPATHLEN)) {
+            assert ( chdir (appdir) == 0 );   /* chdir to the binary app */
+        }
+        CFRelease(url);
+    }
 }
 
 #if SDL_USE_NIB_FILE
@@ -106,17 +107,20 @@ static NSString *getApplicationName(void)
     NSMenuItem *menuItem;
 
     aRange = [[aMenu title] rangeOfString:@"SDL App"];
-    if (aRange.length != 0)
+    if (aRange.length != 0) {
         [aMenu setTitle: [[aMenu title] stringByReplacingRange:aRange with:appName]];
+    }
 
     enumerator = [[aMenu itemArray] objectEnumerator];
     while ((menuItem = [enumerator nextObject]))
     {
         aRange = [[menuItem title] rangeOfString:@"SDL App"];
-        if (aRange.length != 0)
+        if (aRange.length != 0) {
             [menuItem setTitle: [[menuItem title] stringByReplacingRange:aRange with:appName]];
-        if ([menuItem hasSubmenu])
+        }
+        if ([menuItem hasSubmenu]) {
             [self fixMenu:[menuItem submenu] withAppName:appName];
+        }
     }
     [ aMenu sizeToFit ];
 }
@@ -130,10 +134,10 @@ static void setApplicationMenu(void)
     NSMenuItem *menuItem;
     NSString *title;
     NSString *appName;
-    
+
     appName = getApplicationName();
     appleMenu = [[NSMenu alloc] initWithTitle:@""];
-    
+
     /* Add menu items */
     title = [@"About " stringByAppendingString:appName];
     [appleMenu addItemWithTitle:title action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
@@ -153,7 +157,6 @@ static void setApplicationMenu(void)
     title = [@"Quit " stringByAppendingString:appName];
     [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
 
-    
     /* Put menu into the menubar */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
     [menuItem setSubmenu:appleMenu];
@@ -170,22 +173,22 @@ static void setApplicationMenu(void)
 /* Create a window menu */
 static void setupWindowMenu(void)
 {
-    NSMenu      *windowMenu;
-    NSMenuItem  *windowMenuItem;
-    NSMenuItem  *menuItem;
+    NSMenu *windowMenu;
+    NSMenuItem *windowMenuItem;
+    NSMenuItem *menuItem;
 
     windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
-    
+
     /* "Minimize" item */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
     [windowMenu addItem:menuItem];
     [menuItem release];
-    
+
     /* Put menu into the menubar */
     windowMenuItem = [[NSMenuItem alloc] initWithTitle:@"Window" action:nil keyEquivalent:@""];
     [windowMenuItem setSubmenu:windowMenu];
     [[NSApp mainMenu] addItem:windowMenuItem];
-    
+
     /* Tell the application object that this is now the window menu */
     [NSApp setWindowsMenu:windowMenu];
 
@@ -197,20 +200,23 @@ static void setupWindowMenu(void)
 /* Replacement for NSApplicationMain */
 static void CustomApplicationMain (int argc, char **argv)
 {
-    NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
-    SDLMain				*sdlMain;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    SDLMain *sdlMain;
 
     /* Ensure the application object is initialised */
     [SDLApplication sharedApplication];
-    
+
 #ifdef SDL_USE_CPS
     {
         CPSProcessSerNum PSN;
         /* Tell the dock about us */
-        if (!CPSGetCurrentProcess(&PSN))
-            if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
-                if (!CPSSetFrontProcess(&PSN))
+        if (!CPSGetCurrentProcess(&PSN)) {
+            if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103)) {
+                if (!CPSSetFrontProcess(&PSN)) {
                     [SDLApplication sharedApplication];
+                }
+            }
+        }
     }
 #endif /* SDL_USE_CPS */
 
@@ -222,10 +228,10 @@ static void CustomApplicationMain (int argc, char **argv)
     /* Create SDLMain and make it the app delegate */
     sdlMain = [[SDLMain alloc] init];
     [NSApp setDelegate:sdlMain];
-    
+
     /* Start the main event loop */
     [NSApp run];
-    
+
     [sdlMain release];
     [pool release];
 }
@@ -255,17 +261,20 @@ static void CustomApplicationMain (int argc, char **argv)
     char *arg;
     char **newargv;
 
-    if (!gFinderLaunch)  /* MacOS is passing command line args. */
+    if (!gFinderLaunch) {  /* MacOS is passing command line args. */
         return FALSE;
+    }
 
-    if (gCalledAppMainline)  /* app has started, ignore this document. */
+    if (gCalledAppMainline) {  /* app has started, ignore this document. */
         return FALSE;
+    }
 
     temparg = [filename UTF8String];
     arglen = SDL_strlen(temparg) + 1;
     arg = (char *) SDL_malloc(arglen);
-    if (arg == NULL)
+    if (arg == NULL) {
         return FALSE;
+    }
 
     newargv = (char **) realloc(gArgv, sizeof (char *) * (gArgc + 2));
     if (newargv == NULL)
@@ -318,27 +327,27 @@ static void CustomApplicationMain (int argc, char **argv)
 
     bufferSize = selfLen + aStringLen - aRange.length;
     buffer = NSAllocateMemoryPages(bufferSize*sizeof(unichar));
-    
+
     /* Get first part into buffer */
     localRange.location = 0;
     localRange.length = aRange.location;
     [self getCharacters:buffer range:localRange];
-    
+
     /* Get middle part into buffer */
     localRange.location = 0;
     localRange.length = aStringLen;
     [aString getCharacters:(buffer+aRange.location) range:localRange];
-     
+
     /* Get last part into buffer */
     localRange.location = aRange.location + aRange.length;
     localRange.length = selfLen - localRange.location;
     [self getCharacters:(buffer+aRange.location+aStringLen) range:localRange];
-    
+
     /* Build output string */
     result = [NSString stringWithCharacters:buffer length:bufferSize];
-    
+
     NSDeallocateMemoryPages(buffer, bufferSize);
-    
+
     return result;
 }
 
@@ -366,8 +375,9 @@ int main (int argc, char **argv)
         int i;
         gArgc = argc;
         gArgv = (char **) SDL_malloc(sizeof (char *) * (argc+1));
-        for (i = 0; i <= argc; i++)
+        for (i = 0; i <= argc; i++) {
             gArgv[i] = argv[i];
+        }
         gFinderLaunch = NO;
     }
 
