@@ -58,23 +58,23 @@ void TextureImpl::initialize() {
     return;
   }
 
-	glGenTextures(1, &id_);
-	glBindTexture(GL_TEXTURE_2D, id_);
+  glGenTextures(1, &id_);
+  glBindTexture(GL_TEXTURE_2D, id_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   alpha_ = (image->format->BytesPerPixel == 4);
   GLenum byteOrder = alpha_
-          ? ((image->format->Rmask == 0x000000FF) ? GL_RGBA : GL_BGRA)
-          : ((image->format->Rmask == 0x000000FF) ? GL_RGB : GL_BGR);
+    ? ((image->format->Rmask == 0x000000FF) ? GL_RGBA : GL_BGRA)
+    : ((image->format->Rmask == 0x000000FF) ? GL_RGB : GL_BGR);
 
-	glTexImage2D(GL_TEXTURE_2D, 0,
-      image->format->BytesPerPixel, image->w, image->h, 0,
-      byteOrder, GL_UNSIGNED_BYTE, image->pixels);
+  glTexImage2D(GL_TEXTURE_2D, 0,
+    image->format->BytesPerPixel, image->w, image->h, 0,
+    byteOrder, GL_UNSIGNED_BYTE, image->pixels);
 
   gluBuild2DMipmaps(GL_TEXTURE_2D,
-      image->format->BytesPerPixel, image->w, image->h,
-      byteOrder, GL_UNSIGNED_BYTE, image->pixels);
+    image->format->BytesPerPixel, image->w, image->h,
+    byteOrder, GL_UNSIGNED_BYTE, image->pixels);
 
   SDL_FreeSurface(image);
 }
