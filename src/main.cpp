@@ -1,11 +1,14 @@
 // -*- C++ -*-
 
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#ifndef DISABLE_GLUT
+#include <GL/glut.h>
+#endif
 #include <SDL/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <TinyXML/tinyxml.h>
+#include <tinyxml.h>
 
 #include "room.h"
 #include "shader.h"
@@ -28,7 +31,7 @@ static bool run = true;
 static bool fullScreen = false;
 
 static World* world = NULL;
-static bool wireframe = false;
+//static bool wireframe = false;
 
 static Shader* shaders[] = {
   Shaders::defaultShader(),
@@ -116,19 +119,19 @@ static void toggleFullScreen() {
 static void handleKeyDown(SDL_Event* event) {
   switch (event->key.keysym.sym) {
     case SDLK_LEFT: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & KMOD_CTRL) {
         world->previousRoom();
       }
       break;
     }
     case SDLK_DOWN: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & KMOD_CTRL) {
         world->resetPlayer();
       }
       break;
     }
     case SDLK_RIGHT: {
-      if (event->key.keysym.mod & KMOD_META) {
+      if (event->key.keysym.mod & KMOD_CTRL) {
         world->nextRoom();
       }
       break;
@@ -137,6 +140,7 @@ static void handleKeyDown(SDL_Event* event) {
     case SDLK_s: world->player().move(Player::BACKWARD); break;
     case SDLK_d: world->player().move(Player::RIGHT); break;
     case SDLK_w: world->player().move(Player::FORWARD); break;
+    default: break;
   }
 }
 
@@ -147,11 +151,12 @@ static void handleKeyUp(SDL_Event* event) {
     case SDLK_d: world->player().stop(Player::RIGHT); break;
     case SDLK_w: world->player().stop(Player::FORWARD); break;
     case SDLK_SPACE: world->togglePaused(); break;
-    case SDLK_q: if (!(event->key.keysym.mod & KMOD_META)) break;
+    case SDLK_q: if (!(event->key.keysym.mod & KMOD_CTRL)) break;
     case SDLK_ESCAPE: run = false; break;
     case SDLK_F9: toggleShader(); break;
     case SDLK_F10: world->toggleDebug(); break;
     case SDLK_F11: toggleFullScreen(); break;
+    default: break;
   }
 }
 
@@ -192,6 +197,15 @@ static void eventLoop() {
 }
 
 int main(int argc, char** argv) {
+  world = Worlds::fromFile("world.xml");
+  if (!world) {
+    return 1;
+  }
+
+#ifndef DISABLE_GLUT
+  glutInit(&argc, argv);
+#endif
+
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
   SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
@@ -206,7 +220,6 @@ int main(int argc, char** argv) {
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
 
   Sounds::initialize();
-  world = Worlds::fromFile("world.xml");
   // resizeSurface(defaultWidth, defaultHeight);
   toggleFullScreen();
   eventLoop();

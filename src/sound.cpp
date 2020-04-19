@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 #include <SDL/SDL_error.h>
-#include <SDL_mixer/SDL_mixer.h>
+#include <SDL/SDL_mixer.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -143,9 +143,9 @@ Sound& Sounds::fromFile(const char* path) {
   /* If not, load the new sound. */
   std::string spath(path);
   SoundImpl* sound =
-      ((spath.rfind(".mid", std::string::npos, 4) != -1)
-       || (spath.rfind(".ogg", std::string::npos, 4) != -1)
-       || (spath.rfind(".mp3", std::string::npos, 4) != -1))
+      ((spath.rfind(".mid", std::string::npos, 4) != std::string::npos)
+       || (spath.rfind(".ogg", std::string::npos, 4) != std::string::npos)
+       || (spath.rfind(".mp3", std::string::npos, 4) != std::string::npos))
           ? (SoundImpl*) new MusicImpl(path)
           : (SoundImpl*) new ChunkImpl(path);
   sounds().push_back(sound);

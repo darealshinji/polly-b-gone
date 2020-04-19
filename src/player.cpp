@@ -1,8 +1,10 @@
 // -*- C++ -*-
 
-#include <GLUT/glut.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
+#ifndef DISABLE_GLUT
+#include <GL/glut.h>
+#endif
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -94,7 +96,9 @@ void PlayerWheelModel::display() {
 
   /* Tire. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, tireMaterialDiffuse);
+#ifndef DISABLE_GLUT
   glutSolidTorus(wheelRadius / 4.f, 3 * wheelRadius / 4.f, 16, 32);
+#endif
 }
 
 PlayerBodyModel::PlayerBodyModel(const PlayerModel& model) 
@@ -126,7 +130,9 @@ void PlayerBodyModel::display() {
 
   /* Body. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, bodyMaterialDiffuse);
+#ifndef DISABLE_GLUT
   glutSolidCube(bodySize);
+#endif
 
   /* Eyes. */
   static const float eyeDepth = .01f;
@@ -318,6 +324,7 @@ void Player::resetForces() {
       rightWheel_.applyForce(z_, -backwardForce);
       break;
     }
+    default: break;
   }
 
   /* Turning forces. */
@@ -332,6 +339,7 @@ void Player::resetForces() {
       rightWheel_.applyForce(z_, turnForce);
       break;
     }
+    default: break;
   }
 
   /* Uniform drag forces. */
@@ -580,6 +588,7 @@ void Player::move(Direction d) {
       }
       break;
     }
+    default: break;
   }
 }
 
@@ -622,5 +631,6 @@ void Player::stop(Direction d) {
       }
       break;
     }
+    default: break;
   }
 }

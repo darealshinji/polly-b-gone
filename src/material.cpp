@@ -1,6 +1,6 @@
 // -*- C++ -*-
 
-#include <OpenGL/gl.h>
+#include <GL/gl.h>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>

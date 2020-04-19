@@ -9,7 +9,8 @@
 using namespace mbostock;
 
 const char* Resources::path() {
-  return "Contents/Resources/";
+  //return "Contents/Resources/";
+  return "resources/";
 }
 
 const char* Resources::readFile(const char* p) {
