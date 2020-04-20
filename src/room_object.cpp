@@ -5,6 +5,9 @@
 
 using namespace mbostock;
 
+RoomObject::~RoomObject() {
+}
+
 bool RoomObject::dynamic() const {
   return false;
 }

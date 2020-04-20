@@ -13,6 +13,7 @@ namespace mbostock {
 
   class RoomObject {
   public:
+    virtual ~RoomObject();
     virtual Model& model() = 0;
     virtual const Shape& shape() const = 0;
     virtual bool dynamic() const;

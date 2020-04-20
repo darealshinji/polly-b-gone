@@ -86,10 +86,10 @@ Room::Room()
 }
 
 Room::~Room() {
-  //std::vector<RoomObject*>::const_iterator io;
-  //for (io = objects_.begin(); io != objects_.end(); io++) {
-  //  delete (*io);
-  //}
+  std::vector<RoomObject*>::const_iterator io;
+  for (io = objects_.begin(); io != objects_.end(); io++) {
+    delete (*io);
+  }
   std::vector<RoomOrigin*>::const_iterator ir;
   for (ir = origins_.begin(); ir != origins_.end(); ir++) {
     delete (*ir);
