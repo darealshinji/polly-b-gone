@@ -2,7 +2,7 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(DISABLE_GLUT)
   #include <GL/glut.h>
 #endif
 #include <iostream>
@@ -208,6 +208,24 @@ static void eventLoop() {
 }
 
 int main(int argc, char** argv) {
+#if defined(STORAGE_PATH) && !defined(__APPLE__) && !defined(__WIN32__)
+  if (Resources::path()) {
+    std::cout << "loading game files from: " << Resources::path() << std::endl;
+  } else {
+    std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
+    return 1;
+  }
+#endif
+
+  world = Worlds::fromFile("world.xml");
+  if (!world) {
+    return 1;
+  }
+
+#if !defined(__APPLE__) && !defined(DISABLE_GLUT)
+  glutInit(&argc, argv);
+#endif
+
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
   SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
@@ -221,24 +239,7 @@ int main(int argc, char** argv) {
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
 
-#ifndef __APPLE__
-  #if defined(STORAGE_PATH) && !defined(__WIN32__)
-    if (Resources::path()) {
-      std::cout << "loading game files from: " << Resources::path() << std::endl;
-    } else {
-      std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
-      SDL_Quit();
-      return 1;
-    }
-  #endif
-
-  // required by glutSolidTorus() in player.cpp, otherwise
-  // the game doesn't run on Linux
-  glutInit(&argc, argv);
-#endif
-
   Sounds::initialize();
-  world = Worlds::fromFile("world.xml");
   // resizeSurface(defaultWidth, defaultHeight);
   toggleFullScreen();
   eventLoop();

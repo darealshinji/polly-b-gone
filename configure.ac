@@ -98,21 +98,28 @@ AS_CASE([$host],
 ])
 AX_CHECK_PKG_LIB([GL], [gl], [$libgl], [GL/gl.h])
 AX_CHECK_PKG_LIB([GLU], [glu], [$libglu], [GL/glu.h])
-AX_CHECK_PKG_LIB([GLUT], [glut], [$libglut], [GL/glut.h])
+AC_ARG_WITH([glut],
+  [AS_HELP_STRING([--without-glut], [don't use the GLUT library])], [], [with_glut=yes]
+)
+AS_IF([test "x$with_glut" = "xyes"], [
+  AX_CHECK_PKG_LIB([GLUT], [glut], [$libglut], [GL/glut.h])
+], [
+  CXXFLAGS="$CXXFLAGS -DDISABLE_GLUT"
+])
 
 ## GLEW library
 # on OSX is doesn't seem to be required, mingw32 needs it
 # and on Linux it's optional (tested on Ubuntu)
-AC_ARG_WITH([glew], [
-    AS_HELP_STRING([--with-glew], [use the GLEW library (option has no effect for Win32 and Darwin)])
-])
+AC_ARG_WITH([glew],
+  [AS_HELP_STRING([--with-glew], [use the GLEW library (option has no effect for Win32 and Darwin)])]
+)
 AS_CASE([$host],
-    [*darwin*], [ with_glew="no" ],
+    [*darwin*], [with_glew="no"],
     [*mingw32*], [
      AX_CHECK_PKG_LIB([GLEW], [glew], [glew32], [GL/glew.h])
      with_glew="yes"
     ], [
-     AS_IF([ test "x$with_glew" = "xyes" ], [
+     AS_IF([test "x$with_glew" = "xyes"], [
          AX_CHECK_PKG_LIB([GLEW], [glew], [GLEW], [GL/glew.h]) ], [
          AC_CHECK_HEADERS([GLES2/gl2.h GLES2/gl2platform.h], [], [exit 1])
      ])

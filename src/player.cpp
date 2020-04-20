@@ -1,6 +1,8 @@
 // -*- C++ -*-
 
-#include <GL/glut.h>
+#ifndef DISABLE_GLUT
+  #include <GL/glut.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <iostream>
@@ -94,7 +96,9 @@ void PlayerWheelModel::display() {
 
   /* Tire. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, tireMaterialDiffuse);
+#ifndef DISABLE_GLUT
   glutSolidTorus(wheelRadius / 4.f, 3 * wheelRadius / 4.f, 16, 32);
+#endif
 }
 
 PlayerBodyModel::PlayerBodyModel(const PlayerModel& model) 
@@ -126,7 +130,9 @@ void PlayerBodyModel::display() {
 
   /* Body. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, bodyMaterialDiffuse);
+#ifndef DISABLE_GLUT
   glutSolidCube(bodySize);
+#endif
 
   /* Eyes. */
   static const float eyeDepth = .01f;
