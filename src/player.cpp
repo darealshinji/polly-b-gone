@@ -46,6 +46,116 @@ static const Vector axleMaterialDiffuse(.9f, .8f, .8f);
 static const Vector tireMaterialDiffuse(.1f, .1f, .1f);
 static const Vector bodyMaterialDiffuse(.6f, .2f, .3f);
 
+#ifdef DISABLE_GLUT
+/*
+ * Copyright (c) Mark J. Kilgard, 1994, 1997.
+ * Copyright (c) 1993-1997, Silicon Graphics, Inc.
+ * ALL RIGHTS RESERVED
+ *
+ * Permission to use, copy, modify, and distribute this software for
+ * any purpose and without fee is hereby granted, provided that the above
+ * copyright notice appear in all copies and that both the copyright notice
+ * and this permission notice appear in supporting documentation, and that
+ * the name of Silicon Graphics, Inc. not be used in advertising
+ * or publicity pertaining to distribution of the software without specific,
+ * written prior permission.
+ *
+ * THE MATERIAL EMBODIED ON THIS SOFTWARE IS PROVIDED TO YOU "AS-IS"
+ * AND WITHOUT WARRANTY OF ANY KIND, EXPRESS, IMPLIED OR OTHERWISE,
+ * INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY OR
+ * FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL SILICON
+ * GRAPHICS, INC.  BE LIABLE TO YOU OR ANYONE ELSE FOR ANY DIRECT,
+ * SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY
+ * KIND, OR ANY DAMAGES WHATSOEVER, INCLUDING WITHOUT LIMITATION,
+ * LOSS OF PROFIT, LOSS OF USE, SAVINGS OR REVENUE, OR THE CLAIMS OF
+ * THIRD PARTIES, WHETHER OR NOT SILICON GRAPHICS, INC.  HAS BEEN
+ * ADVISED OF THE POSSIBILITY OF SUCH LOSS, HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE
+ * POSSESSION, USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * US Government Users Restricted Rights
+ * Use, duplication, or disclosure by the Government is subject to
+ * restrictions set forth in FAR 52.227.19(c)(2) or subparagraph
+ * (c)(1)(ii) of the Rights in Technical Data and Computer Software
+ * clause at DFARS 252.227-7013 and/or in similar or successor
+ * clauses in the FAR or the DOD or NASA FAR Supplement.
+ * Unpublished-- rights reserved under the copyright laws of the
+ * United States.  Contractor/manufacturer is Silicon Graphics,
+ * Inc., 2011 N.  Shoreline Blvd., Mountain View, CA 94039-7311.
+ *
+ * OpenGL(R) is a registered trademark of Silicon Graphics, Inc.
+ */
+
+// https://stackoverflow.com/a/327135/5687704
+static void draw_body(GLfloat size)
+{
+  const GLenum type = GL_QUADS;
+  GLfloat v[8][3];
+  int i;
+
+  const GLfloat n[6][3] =
+  {
+    {-1.0, 0.0, 0.0},
+    {0.0, 1.0, 0.0},
+    {1.0, 0.0, 0.0},
+    {0.0, -1.0, 0.0},
+    {0.0, 0.0, 1.0},
+    {0.0, 0.0, -1.0}
+  };
+
+  const GLint faces[6][4] =
+  {
+    {0, 1, 2, 3},
+    {3, 2, 6, 7},
+    {7, 6, 5, 4},
+    {4, 5, 1, 0},
+    {5, 6, 2, 1},
+    {7, 4, 0, 3}
+  };
+
+  v[0][0] = v[1][0] = v[2][0] = v[3][0] = -size / 2;
+  v[4][0] = v[5][0] = v[6][0] = v[7][0] = size / 2;
+  v[0][1] = v[1][1] = v[4][1] = v[5][1] = -size / 2;
+  v[2][1] = v[3][1] = v[6][1] = v[7][1] = size / 2;
+  v[0][2] = v[3][2] = v[4][2] = v[7][2] = -size / 2;
+  v[1][2] = v[2][2] = v[5][2] = v[6][2] = size / 2;
+
+  for (i = 5; i >= 0; --i) {
+    glBegin(type);
+    glNormal3fv(&n[i][0]);
+    glVertex3fv(&v[faces[i][0]][0]);
+    glVertex3fv(&v[faces[i][1]][0]);
+    glVertex3fv(&v[faces[i][2]][0]);
+    glVertex3fv(&v[faces[i][3]][0]);
+    glEnd();
+  }
+}
+
+// https://www.opengl.org/archives/resources/code/samples/redbook/torus.c
+static void draw_torus(int numc, int numt, double size)
+{
+   int i, j, k;
+   double s, t, x, y, z;
+
+   const double twopi = 2 * 3.14159265358979323846f;
+
+   for (i = 0; i < numc; ++i) {
+      glBegin(GL_QUAD_STRIP);
+      for (j = 0; j <= numt; ++j) {
+         for (k = 1; k >= 0; --k) {
+            s = (i + k) % numc + .5f;
+            t = j % numt;
+            x = (1 + .1f * cos(s*twopi/numc)) * cos(t*twopi/numt);
+            y = (1 + .1f * cos(s*twopi/numc)) * sin(t*twopi/numt);
+            z = .1f * sin(s*twopi/numc);
+            glVertex3f(x*size, y*size, z*size);
+         }
+      }
+      glEnd();
+   }
+}
+#endif
+
 namespace mbostock {
 
   /**
@@ -96,7 +206,9 @@ void PlayerWheelModel::display() {
 
   /* Tire. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, tireMaterialDiffuse);
-#ifndef DISABLE_GLUT
+#ifdef DISABLE_GLUT
+  draw_torus(16, 32, wheelRadius - wheelRadius / 8.f);
+#else
   glutSolidTorus(wheelRadius / 4.f, 3 * wheelRadius / 4.f, 16, 32);
 #endif
 }
@@ -130,7 +242,9 @@ void PlayerBodyModel::display() {
 
   /* Body. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, bodyMaterialDiffuse);
-#ifndef DISABLE_GLUT
+#ifdef DISABLE_GLUT
+  draw_body(bodySize);
+#else
   glutSolidCube(bodySize);
 #endif
 
