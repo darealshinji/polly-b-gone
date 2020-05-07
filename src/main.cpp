@@ -2,7 +2,7 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#if !defined(__APPLE__) && !defined(DISABLE_GLUT)
+#if !defined(__APPLE__) && defined(WITH_GLUT)
   #include <GL/glut.h>
 #endif
 #include <iostream>
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-#if !defined(__APPLE__) && !defined(DISABLE_GLUT)
+#if !defined(__APPLE__) && defined(WITH_GLUT)
   glutInit(&argc, argv);
 #endif
 

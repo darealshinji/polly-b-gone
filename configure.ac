@@ -1,27 +1,3 @@
-# License for configure.ac is:
-# 
-# The MIT License (MIT)
-# 
-# Copyright (c) 2015-2016, djcj <djcj@gmx.de>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 # usage: AX_CHECK_PKG_LIB(prefix, pkg-module, library, headers)
 m4_define([AX_CHECK_PKG_LIB], [{
     AC_LANG_PUSH([C++])
@@ -99,12 +75,11 @@ AS_CASE([$host],
 AX_CHECK_PKG_LIB([GL], [gl], [$libgl], [GL/gl.h])
 AX_CHECK_PKG_LIB([GLU], [glu], [$libglu], [GL/glu.h])
 AC_ARG_WITH([glut],
-  [AS_HELP_STRING([--without-glut], [don't use the GLUT library])], [], [with_glut=yes]
+  [AS_HELP_STRING([--with-glut], [use the GLUT library])]
 )
 AS_IF([test "x$with_glut" = "xyes"], [
   AX_CHECK_PKG_LIB([GLUT], [glut], [$libglut], [GL/glut.h])
-], [
-  CXXFLAGS="$CXXFLAGS -DDISABLE_GLUT"
+  CXXFLAGS="$CXXFLAGS -DWITH_GLUT"
 ])
 
 ## GLEW library

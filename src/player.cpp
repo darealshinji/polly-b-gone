@@ -1,6 +1,6 @@
 // -*- C++ -*-
 
-#ifndef DISABLE_GLUT
+#ifdef WITH_GLUT
   #include <GL/glut.h>
 #endif
 #include <GL/gl.h>
@@ -46,7 +46,7 @@ static const Vector axleMaterialDiffuse(.9f, .8f, .8f);
 static const Vector tireMaterialDiffuse(.1f, .1f, .1f);
 static const Vector bodyMaterialDiffuse(.6f, .2f, .3f);
 
-#ifdef DISABLE_GLUT
+#ifndef WITH_GLUT
 /*
  * Copyright (c) Mark J. Kilgard, 1994, 1997.
  * Copyright (c) 1993-1997, Silicon Graphics, Inc.
@@ -132,7 +132,7 @@ static void draw_body(GLfloat size)
 }
 
 // https://www.opengl.org/archives/resources/code/samples/redbook/torus.c
-static void draw_torus(int numc, int numt, double size)
+static void draw_torus(double size, double df, int numc, int numt)
 {
    int i, j, k;
    double s, t, x, y, z;
@@ -145,9 +145,10 @@ static void draw_torus(int numc, int numt, double size)
          for (k = 1; k >= 0; --k) {
             s = (i + k) % numc + .5f;
             t = j % numt;
-            x = (1 + .1f * cos(s*twopi/numc)) * cos(t*twopi/numt);
-            y = (1 + .1f * cos(s*twopi/numc)) * sin(t*twopi/numt);
-            z = .1f * sin(s*twopi/numc);
+
+            x = (1 + df * cos(s*twopi/numc)) * cos(t*twopi/numt);
+            y = (1 + df * cos(s*twopi/numc)) * sin(t*twopi/numt);
+            z = df * sin(s*twopi/numc);
             glVertex3f(x*size, y*size, z*size);
          }
       }
@@ -206,10 +207,10 @@ void PlayerWheelModel::display() {
 
   /* Tire. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, tireMaterialDiffuse);
-#ifdef DISABLE_GLUT
-  draw_torus(16, 32, wheelRadius - wheelRadius / 8.f);
-#else
+#ifdef WITH_GLUT
   glutSolidTorus(wheelRadius / 4.f, 3 * wheelRadius / 4.f, 16, 32);
+#else
+  draw_torus(3 * wheelRadius / 4.f, .34f, 16, 32);
 #endif
 }
 
@@ -242,10 +243,10 @@ void PlayerBodyModel::display() {
 
   /* Body. */
   glMaterialv(GL_FRONT_AND_BACK, GL_DIFFUSE, bodyMaterialDiffuse);
-#ifdef DISABLE_GLUT
-  draw_body(bodySize);
-#else
+#ifdef WITH_GLUT
   glutSolidCube(bodySize);
+#else
+  draw_body(bodySize);
 #endif
 
   /* Eyes. */

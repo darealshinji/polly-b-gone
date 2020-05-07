@@ -1,6 +1,6 @@
 // -*- C++ -*-
 
-#ifndef DISABLE_GLUT
+#ifdef WITH_GLUT
   #include <GL/glut.h>
 #endif
 #include <GL/glu.h>
@@ -545,7 +545,7 @@ class TeapotModel : public Model {
 public:
   virtual void display() {
     glFrontFace(GL_CW);
-#ifndef DISABLE_GLUT
+#ifdef WITH_GLUT
     glutSolidTeapot(1.f);
 #endif
     glFrontFace(GL_CCW);
@@ -555,7 +555,7 @@ public:
 class IcosahedronModel : public Model {
 public:
   virtual void display() {
-#ifndef DISABLE_GLUT
+#ifdef WITH_GLUT
     glutSolidIcosahedron();
 #endif
   }
