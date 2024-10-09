@@ -25,8 +25,7 @@ RandomForce::RandomForce(float k)
     : k_(k) {
 }
 
-Vector RandomForce::force(Particle& p) {
-  (void)p;
+Vector RandomForce::force(Particle&) {
   return Vector::randomVector(k_);
 }
 

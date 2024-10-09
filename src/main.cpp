@@ -25,8 +25,8 @@ static const int defaultWidth = 640;
 static const int defaultHeight = 480;
 static int screenWidth = 0;
 static int screenHeight = 0;
-static const int defaultX = 50;
-static const int defaultY = 50;
+//static const int defaultX = 50;
+//static const int defaultY = 50;
 static const float kd = .060f; // frame-rate dependent
 
 static bool run = true;
@@ -226,6 +226,9 @@ int main(int argc, char** argv) {
 
 #if !defined(__APPLE__) && defined(WITH_GLUT)
   glutInit(&argc, argv);
+#else
+  (void)argc;
+  (void)argv;
 #endif
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
