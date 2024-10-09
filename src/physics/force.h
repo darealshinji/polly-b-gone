@@ -31,6 +31,9 @@ namespace mbostock {
   public:
     RandomForce(float k);
 
+    /* silences [-Woverloaded-virtual=] warnings */
+    using UnaryForce::force;
+
     virtual Vector force(Particle& p);
 
   private:
