@@ -1,0 +1,1309 @@
+<html>
+  <head>
+    <title>Polly-B-Gone World XML Format</title>
+    <!-- link rel="stylesheet" type="text/css" href="https://cs.stanford.edu/people/mbostock/style.css"/ -->
+    <style type="text/css">
+      h3 a:link, h3 a:visited {
+        color: black;
+        text-decoration: none;
+      }
+      table.definition {
+        width: 100%;
+        border: solid 1px #ccc;
+        background-color: #eee;
+        padding: 1em;
+        margin-left: 1em;
+      }
+      table.definition thead tr th {
+        text-align: left;
+        padding-right: 3pt;
+      }
+      table.definition tbody tr th {
+        text-align: left;
+        vertical-align: top;
+        padding-left: 1em;
+        font-family: monospace;
+        width: 16em;
+      }
+      table.definition tbody tr th, table.definition tbody tr td {
+        padding-top: 1em;
+      }
+    </style>
+  </head>
+<body>
+ 
+<h1>Polly-B-Gone World XML Format</h1>
+
+<div><a href="./">Polly-B-Gone</a> uses an XML file to define the game
+  world. The file is called <tt>world.xml</tt> and you'll find it inside the app
+  bundle:
+
+  <blockquote><tt>Polly-B-Gone.app/Contents/Resources/world.xml</tt></blockquote>
+
+  You can edit this file to define change textures, lighting, and music. You can
+  even design new objects, puzzles, rooms and entire levels!
+
+  <p/>This document assumes that you are familiar with the basic structure of
+  <a href="http://en.wikipedia.org/wiki/XML">XML</a>. If you've edited a webpage
+  before, then you know HTML which is similiar. However, XML is more formal and
+  less forgiving, so don't forget to quote attributes and close your tags. In
+  fact, in the initial release of Polly-B-Gone, there's no error detection
+  whatsoever; if there is any problem with XML file, the application will crash
+  on startup and output an error to the console. I realize this is frustrating
+  and if people are interested in designing their own levels then I will improve
+  the error handling!
+
+  <p/>I highly recommend you make a backup copy of the original
+  <tt>world.xml</tt> file before making any edits. This way you can easily diff
+  your changes and revert to a working version. (Or better yet,
+  use <a href="https://github.com/mbostock/polly-b-gone">git</a>.)
+</div>
+
+<h2><a name="world">Worlds</a></h2>
+
+<div>
+  The world in Polly-B-Gone is structured as a directed graph of rooms, defined
+  by multiple instances of the <tt>room</tt> element. Typically, rooms are
+  arranged in a linear fashion, starting with the easiest puzzles and
+  progressing to more difficult ones. However, there's no reason to restrict
+  yourself to a linear layout; you can structure arbitrary connections
+  using <i>portals</i> and <i>origins</i> defined below.
+
+  <p/>The <tt>world</tt> element also defines the materials which will be used
+  to control each object's appearance, for example the textures and diffuse
+  colors used in the OpenGL lighting model. The associated material can also
+  affect the physical properties of an object, like friction. You can also
+  define the lights used in different rooms.
+</div>
+
+<h3><tt><a href="#world">world</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th><a href="#material">material</a></th>
+        <td>
+          Defines visual properties of room objects: textures, diffuse lighting,
+          specular lighting, etc. Also defines some physical properties like how
+          slippery the surface is.
+        </td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th><a href="#lighting">lighting</a></th>
+        <td>
+          Defines the location of lights in the room, as well as each light's
+          properties per the OpenGL lighting model. Up to eight static lights
+          can be specified per room.
+        </td>
+      </tr>
+    </tbody>
+    <tbody>
+      <tr>
+        <th><a href="#room">room</a></th>
+        <td>Defines a "room" in the game world: a collection of <i>room
+        objects</i> that Polly can drive around in, connected with other rooms
+        through portals.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><a name="room">Rooms</a></h2>
+
+<div>
+  <p/>Within each room, you need to define one or more <i>room objects</i>,
+  which are 3D primitives like boxes and cylinders that Polly can drive
+  on. Let's start by looking at a simple example:
+
+<pre>
+&lt;room name="hello-world" lighting="default"&gt;
+  &lt;camera-min x="-10" y="4" z="-5"/&gt;
+  &lt;camera-max x="10" y="10" z="10"/&gt;
+
+  &lt;origin name="start"&gt;
+    &lt;position x="0" y=".1" z="3"/&gt;
+    &lt;velocity x="1" y="0" z="0"/&gt;
+  &lt;/origin&gt;
+
+  &lt;block material="concrete"&gt;
+    &lt;min x="-10" y="-100" z="-10"/&gt;
+    &lt;max x="10" y="0" z="10"/&gt;
+  &lt;/block&gt;
+&lt;/room&gt;
+</pre>
+
+  <p/>Here we have a simple room, named "hello-world", that has only a single
+  object: it's a square, flat 10x10 <tt>block</tt> made of concrete.
+  Polly-B-Gone uses the standard XYZ axes, so the ground is the XZ plane, with
+  the X-axis pointing to the right and the Z-axis pointing out of the screen.
+
+  <p/>The block extends to <tt>y="-100"</tt>, which means that it's actually a
+  very tall column that we're driving on. This technique is typically used
+  so that the column appears infinitely-tall: the bottom will fade into the
+  black fog below using OpenGL's fog model.
+</div>
+
+<h3><tt><a href="#room">room</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>
+          A unique name for the room, used to identify the room in conjunction
+          with a portal and an origin.
+        </td>
+      </tr>
+      <tr>
+        <th>lighting</th>
+        <td>
+          The name of the associated lighting model.
+        </td>
+      </tr>
+      <tr>
+        <th>music</th>
+        <td>
+          The path to the file containing the background music for the room;
+          optional. You can use MIDI (<tt>.mid</tt>), MP3 (<tt>.mp3</tt>) or Ogg
+          Vorbis (<tt>.ogg</tt>), but SDL_mixer music support for MIDI and MP3
+          seems buggy; Ogg is strongly recommended.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th><a href="#camera-bounds">camera-min</a></th>
+        <td>The minimum bounds of the camera position;
+        a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th><a href="#camera-bounds">camera-max</a></th>
+        <td>The maximum bounds of the camera position;
+        a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th><a href="#origin">origin</a></th>
+        <td>An entrance to the room, in terms of position and initial
+          velocity.</td>
+      </tr>
+      <tr>
+        <th><a href="#portal">portal</a></th>
+        <td>An exit from room, defined as an axis-aligned block, connected to an
+          origin in another room (or potentially the same room).</td>
+      </tr>
+      <tr>
+        <th><a href="#block">block</a></th>
+        <td>An axis-aligned or oriented box. You can also use this element to
+        describe other hexahedrons, such as parallelepipeds, provided the sides
+        are quadrilateral.</td>
+      </tr>
+      <tr>
+        <th><a href="#wall">wall</a></th>
+        <td>A quadrilateral or triangle, with optional texture coordinates.</a>
+      </tr>
+      <tr>
+        <th><a href="#tube">tube</a></th>
+        <td>A cylinder with closed end caps.</td>
+      </tr>
+      <tr>
+        <th><a href="#ball">ball</a></th>
+        <td>A sphere.</td>
+      </tr>
+      <tr>
+        <th><a href="#ramp">ramp</a></th>
+        <td>A five-sided polyhedron (two triangle sides and three quadrilateral
+        sides).</td>
+      </tr>
+      <tr>
+        <th><a href="#escalator">escalator</a></th>
+        <td>An axis-aligned block with a surface velocity and associated moving
+        texture.</td>
+      </tr>
+      <tr>
+        <th><a href="#switch">switch</a></th>
+        <td>An axis-aligned block that enables any associated transformations
+        (translations or rotations) when the player touches the switch.</td>
+      </tr>
+      <tr>
+        <th><a href="#seesaw">seesaw</a></th>
+        <td>An axis-aligned block modeled as a three-particle system along the
+        X-axis that swings back and forth depending on the player's
+        position.</td>
+      </tr>
+      <tr>
+        <th><a href="#fan">fan</a></th>
+        <td>A cylinder containing rotating fan blades. (This could also be
+        implemented manually using normal blocks, tubes, balls and
+        rotations.)</td>
+      </tr>
+      <tr>
+        <th><a href="#translation">translation</a></th>
+        <td>A dynamic linear translation that is applied to any contained
+        objects.</td>
+      </tr>
+      <tr>
+        <th><a href="#rotation">rotation</a></th>
+        <td>A dynamic rotation that is applied to any contained objects.</td>
+      </tr>
+      <tr>
+        <th><a href="#constant-force">constant-force</a></th>
+        <td>An invisible axis-aligned block that applies a constant force to
+        the player when the player is inside the block.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="camera-bounds">Camera Bounds</a></h3>
+
+<div>
+  The camera follows Polly as she drives around the room. A fixed offset from
+  the player's location is used: &lt;0, 4, 6&gt;. The offset is in world
+  coordinates, rather than player coordinates, meaning that the camera does not
+  rotate as the player turns. Although this may take a little getting used to
+  when driving Polly (similar to driving a remote-control car), the big
+  advantage as a level designer is that you can design the room so the camera
+  doesn't get obstructed by room objects. For example, you can place tall
+  objects in the back, with shorter objects in the front.
+
+  <p/>In addition, you can place a limit on the places the camera can go using
+  the <tt>camera-min</tt> and <tt>camera-max</tt> elements. These define an
+  axis-aligned box, and the position of the camera is clamped to be within this
+  box regardless of the location of the player. For example, when Polly falls
+  into a chasm, using a minimum camera y-value of 4 makes the camera tilt down,
+  rather than follow Polly down. Of course, you should feel free to play with
+  this to try different effects.
+</div>
+
+<h3><tt><a href="#camera-bounds">camera-min</a></tt> Element Definition</h3>
+<div>See <a href="#vector">Vector</a>.</div>
+
+<h3><tt><a href="#camera-bounds">camera-max</a></tt> Element Definition</h3>
+<div>See <a href="#vector">Vector</a>.</div>
+
+<h3><a name="origin">Origins</a></h3>
+
+<div>
+  The entrances to each room are defined by the <tt>origin</tt> element. A room
+  may have multiple origins; in a linear arrangement, each room typically has
+  two origins on either side. The origin simply defines the starting position of
+  the player, and the player's starting velocity. Usually, you want the starting
+  velocity to be non-zero to give a sense of rolling continuity from one room to
+  the next. The velocity also implies which direction Polly is facing when she
+  enters the room.
+</div>
+
+<h3><tt><a href="#origin">origin</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>
+          A name for the origin, used to identify the origin in conjunction with
+          the parent room. For example, an origin named "start" in the room
+          "hello-world" would be referenced as "hello-world.start" from a
+          portal.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>position</th>
+        <td>The player's initial position; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>velocity</th>
+        <td>The player's initial velocity; a <a href="#vector">vector</a>.
+          Implies an orientation.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="portal">Portals</a></h3>
+
+<div>
+  The exits from each room are defined by the <tt>portal</tt> element. A room
+  may have multiple portals; in a linear arrangement, each room typically has
+  two portals on either side. The portal is represented as an invisible
+  axis-aligned box; when the player enters the box, they are instantly ported to
+  the associated origin.
+
+  <p/>Portals are not currently subject to dynamic transformations, but that
+  could be easily added in the future.
+</div>
+
+<h3><tt><a href="#portal">portal</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>origin</th>
+        <td>
+          The name of the target room and origin the player is ported to when
+          they enter the portal. For example, an origin named "start" in the
+          room "hello-world" would be referenced as "hello-world.start".
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the portal; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the portal; a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h2><a name="object">Room Objects</a></h2>
+
+<div>
+  Room objects are three-dimensional primitives that are placed in the
+  room. They serve as driving surfaces as well as obstacles Polly may need to
+  get around in order to proceed to the next room. Most objects are static,
+  though any object can have <a href="#transformation">dynamic
+  transformations</a> applied to them. Some objects, like seesaws and fans, are
+  inherently dynamic. More dynamic objects may be added in a future release.
+</div>
+
+<h3><a name="block">Blocks</a></h3>
+
+<div>
+  A block is a solid box, either axis-aligned or oriented. It is not as basic as
+  a <i>wall</i>, but is frequently more convenient to define solid objects.
+</div>
+
+<h3><tt><a href="#block">block</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>top-material</th>
+        <td>
+          The name of the associated material for the top surface; optional.
+          If not specified, the body material will be used.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the box; a <a href="#vector">vector</a>. This field is used for axis-aligned boxes.</td>
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the box; a <a href="#vector">vector</a>. This field is used for axis-aligned boxes.</td>
+      </tr>
+      <tr>
+        <th>c</th>
+        <td>The center point of the box; a <a href="#vector">vector</a>.
+          This field is used for oriented boxes.</td>
+      </tr>
+      <tr>
+        <th>x</th>
+        <td>The X-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+      </tr>
+      <tr>
+        <th>y</th>
+        <td>The Y-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+      </tr>
+      <tr>
+        <th>z</th>
+        <td>The Z-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="wall">Walls</a></h3>
+
+<div>
+  A <i>wall</i> is either a quadrilateral or a triangle. The vertices must be
+  coplanar. Unlike the other shapes, walls do not define a solid object, but
+  they still collide with Polly. Walls are most useful because you can
+  explicitly specify the texture coordinates.
+</div>
+
+<h3><tt><a href="#block">wall</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x0</th>
+        <td>The first vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x1</th>
+        <td>The second vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x2</th>
+        <td>The third vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x3</th>
+        <td>The fourth vertex; a <a href="#vector">vector</a>; optional.
+          This field is only used for quadrilaterals.</td>
+      </tr>
+      <tr>
+        <th>tex-coords</th>
+        <td>
+          The texture coordinates of each vertex; optional. If specified, this
+          should contain child element vectors <tt>t0</tt>, <tt>t1</tt>,
+          etc. that specify texture coordinates in X and Y (U and V).
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="tube">Tubes</a></h3>
+
+<div>
+  A cylinder, expressed as a main axis and a radius. In addition, you should
+  specify the Y-axis for the cylinder, orthogonal to the main axis, to orient
+  the texture.
+</div>
+
+<h3><tt><a href="#tube">tube</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>cap-material</th>
+        <td>
+          The name of the associated material for the end caps; optional.
+          If not specified, the body material will be used.
+        </td>
+      </tr>
+      <tr>
+        <th>radius</th>
+        <td>The radius of the cylinder.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x0</th>
+        <td>The first vertex of the main axis;
+        a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x1</th>
+        <td>The second vertex of the main axis;
+        a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>y</th>
+        <td>The Y-axis (in shape space), orthogonal to the main axis;
+        a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="ball">Balls</a></h3>
+
+<div>A sphere, expressed as a center point and radius.</div>
+
+<h3><tt><a href="#ball">ball</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>radius</th>
+        <td>The radius of the sphere.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x</th>
+        <td>The center point of the sphere; a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="ramp">Ramps</a></h3>
+
+<div>A five-sided polyhedron, expressed using four vertices that describe the
+  top surface. The middle vertices (<tt>x1</tt> and <tt>x2</tt>) must be the
+  upper points of the ramp.</div>
+
+<h3><tt><a href="#ramp">ramp</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>top-material</th>
+        <td>
+          The name of the associated material for the top surface; optional.
+          If not specified, the body material will be used.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x0</th>
+        <td>The first, lower, vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x1</th>
+        <td>The second, upper, vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x2</th>
+        <td>The third, upper, vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x3</th>
+        <td>The fourth, lower, vertex; a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="escalator">Escalators</a></h3>
+
+<div>
+  An axis-aligned block with a surface velocity.
+</div>
+
+<h3><tt><a href="#escalator">escalator</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>top-material</th>
+        <td>
+          The name of the associated material for the top surface; optional.
+          If not specified, the body material will be used.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>v</th>
+        <td>The surface velocity vector; a <a href="#vector">vector</a>. Typically this is along either the X- or Z-axis.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="switch">Switches</a></h3>
+
+<div>
+  An axis-aligned block that, when touched by the player, enables any associated
+  dynamic transformations. When a transformation is associated with a switch,
+  the transformation is initially disabled.
+</div>
+
+<h3><tt><a href="#switch">switch</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>active-material</th>
+        <td>
+          The name of the associated material when the switch is activated;
+          optional. If not specified, the body material will be used. Unless you
+          want the switch to be invisible to the player, it is recommended that
+          you specify an active material to give the player feedback that the
+          switch was triggered.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>target</th>
+        <td>The target transformation of the switch, as specified by
+          the <tt>name</tt> attribute. Multiple target transformations may be
+          specified.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="seesaw">Seesaws</a></h3>
+
+<div>
+  An axis-aligned block that responds to the players weight by swinging back and
+  forth. Currently, seesaws must be aligned along the X-axis, but this is easy
+  to fix in a future release.
+</div>
+
+<h3><tt><a href="#seesaw">seesaw</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>top-material</th>
+        <td>
+          The name of the associated material for the top surface; optional.
+          If not specified, the body material will be used.
+        </td>
+      </tr>
+      <tr>
+        <th>mass</th>
+        <td>
+          The mass of the seesaw; lighter seesaws will swing more wildly in
+          response to the player's weight, while heavier seesaws will be more
+          stable.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h3><a name="fan">Fans</a></h3>
+
+<h3><tt><a href="#fan">fan</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>material</th>
+        <td>
+          The name of the associated material.
+        </td>
+      </tr>
+      <tr>
+        <th>radius</th>
+        <td>
+          The radius of the fan blades.
+        </td>
+      </tr>
+      <tr>
+        <th>speed</th>
+        <td>The rotational speed of the fan blades.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x</th>
+        <td>The center point of the fan; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>v</th>
+        <td>The fan axis vector; a <a href="#vector">vector</a>. In the future,
+        this will be changed to <tt>x0</tt> and <tt>x1</tt> to specify the fan
+        cylinder main axis.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><a name="material">Materials</a></h2>
+
+<div>
+  Defines visual properties of an object, as well as some physical properties
+  (friction).
+</div>
+
+<h3><tt><a href="#material">material</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>The name of the material. Must be unique.</td>
+      </tr>
+      <tr>
+        <th>slip-angle</th>
+        <td>The angle at which the player loses friction; use 0 degrees for a
+        frictionless surface, and 90 degrees for infinite lateral friction.
+        This will likely change to a true coefficient of (coulomb) friction in
+        a future release.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>diffuse</th>
+        <td>The diffuse color; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>specular</th>
+        <td>The specular color; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>ambient</th>
+        <td>The ambient color; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>emission</th>
+        <td>The emission color; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>texture</th>
+        <td>
+          The texture, as referenced by the <tt>path</tt> attribute. Textures
+          may be PNGs, JPEGs, or any other image format supported by SDL_image.
+          It is recommended that JPEGs are used for opaque textures, and PNGs
+          for transparent textures. Texture dimensions should be powers of two;
+          512x512 is recommended. Mipmaps are built automatically.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><a name="lighting">Lighting</a></h2>
+
+<div>
+  Defines the lights in the scene. At the moment, all lights are static, but in
+  a future release it might be nice to have dynamic lighting, either by applying
+  dynamic transformations to light sources or doing something fancier.
+</div>
+
+<h3><tt><a href="#lighting">lighting</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>The name of the lighting. Must be unique.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>ambient</th>
+        <td>The global ambient lighting; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>light</th>
+        <td>A light. Up to eight lights may be specified.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><tt><a href="#lighting">light</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>spot-exponent</th>
+        <td>The spot exponent factor.</td>
+      </tr>
+      <tr>
+        <th>constant-attenuation</th>
+        <td>The constant attenuation factor.</td>
+      </tr>
+      <tr>
+        <th>linear-attenuation</th>
+        <td>The linear attenuation factor.</td>
+      </tr>
+      <tr>
+        <th>quadratic-attenuation</th>
+        <td>The quadratic attenuation factor.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>diffuse</th>
+        <td>The diffuse light; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>specular</th>
+        <td>The specular light; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>ambient</th>
+        <td>The ambient light; a <a href="#color">color</a>.</td>
+      </tr>
+      <tr>
+        <th>position</th>
+        <td>The light position; a <a href="#vector">vector</a>. In addition, you
+        may specify the <tt>w</tt> coordinate of zero for a directional
+        light.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><a name="transformation">Transformations</a></h2>
+
+<h3><a name="translation">Translations</a></h3>
+
+<div>Defines an animated linear translation.</div>
+
+<h3><tt><a href="#translation">translation</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>The name of the translation. Only required if this translation needs
+        to be enabled by a switch. The name must be unique.</td>
+      </tr>
+      <tr>
+        <th>speed</th>
+        <td>The speed of the translation. Speeds cannot be negative.</td>
+      </tr>
+      <tr>
+        <th>start</th>
+        <td>The start parameter, in [0, 1].</td>
+      </tr>
+      <tr>
+        <th>dampen</th>
+        <td>The dampening factor (in [0, 1]) of the translation. Use 0 for a
+        "hard" reset, where the platform instantly changes direction. Keep in
+        mind that this is likely to throw the player off the platform, so using
+        a dampening factor near 1 will make the platform smoothly change
+        directions. The dampening factor must be less than one.
+
+        <p/>In the current implementation, using a non-zero dampening factor
+        means any contained shapes to not fit exactly to the start and end
+        position specified by the translation; they will go slightly outside the
+        bounds. This will be fixed in a future release.
+        </td>
+      </tr>
+      <tr>
+        <th>mode</th>
+        <td>The reset mode of the translation. The default is "reverse", which
+        means the translation reverses directions when it reaches the end.
+        Alternatively, you can use "one-way" if you want the translation to stop
+        at the end (useful for extending bridges, for example) or "reset" if you
+        want the translation to reset to the initial position instantaneously
+        (used in the "barrelroll" room, for example).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x0</th>
+        <td>The start position; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>x1</th>
+        <td>The end position; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>*</th>
+        <td>
+          Translations can contain any other room object, room force, or another
+          transformation. In the simplest case, a translation might contain a
+          single <tt>block</tt> to make a moving platform. But, by composing
+          multiple translations and rotations, you can make interesting dynamic
+          rooms.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="rotation">Rotations</a></h3>
+
+<div>Defines an animated rotation around an axis and origin.</div>
+
+<h3><tt><a href="#rotation">rotation</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>name</th>
+        <td>The name of the rotation. Only required if this rotation needs
+        to be enabled by a switch. The name must be unique.</td>
+      </tr>
+      <tr>
+        <th>speed</th>
+        <td>The speed of the rotation. Speeds <i>can</i> be negative.</td>
+      </tr>
+      <tr>
+        <th>angle</th>
+        <td>The start angle (in degrees).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p/><table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>origin</th>
+        <td>The rotation origin; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>axis</th>
+        <td>The rotation axis; a <a href="#vector">vector</a>.</td>
+      </tr>
+      <tr>
+        <th>*</th>
+        <td>
+          Rotations can contain any other room object, room force, or another
+          transformation. In the simplest case, a rotation might contain a
+          single <tt>block</tt> to make a rotating platform. But, by composing
+          multiple translations and rotations, you can make interesting dynamic
+          rooms.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2><a name="force">Room Forces</a></h2>
+
+<h3><a name="constant-force">Constant Force Blocks</a></h3>
+
+<div>Defines an invisible axis-aligned box that applies a constant force to the
+  player when the player is inside the box.</div>
+
+<h3><tt><a href="#constant-force">constant-force</a></tt> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Child Element</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>min</th>
+        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.
+      </tr>
+      <tr>
+        <th>max</th>
+        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.
+      </tr>
+      <tr>
+        <th>force</th>
+        <td>The force vector; a <a href="#vector">vector</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<h2><a name="generic">Generic Elements</a></h2>
+
+<h3><a name="vector" href="#vector">Vector</a> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>x</th>
+        <td>The X-coordinate of the vector.</td>
+      </tr>
+      <tr>
+        <th>y</th>
+        <td>The Y-coordinate of the vector.</td>
+      </tr>
+      <tr>
+        <th>z</th>
+        <td>The Z-coordinate of the vector.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3><a name="color" href="#color">Color</a> Element Definition</h3>
+
+<div>
+  <table class="definition">
+    <thead>
+      <tr><th>Attribute</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>r</th>
+        <td>The red component of the color.</td>
+      </tr>
+      <tr>
+        <th>g</th>
+        <td>The green component of the color.</td>
+      </tr>
+      <tr>
+        <th>b</th>
+        <td>The blue component of the color.</td>
+      </tr>
+      <tr>
+        <th>a</th>
+        <td>The alpha component of the color.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p><i style="font-size:smaller;">Last updated December 5, 2008 by mbostock.</i>
+<!--
+     FILE ARCHIVED ON 07:37:41 Dec 16, 2019 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 16:26:56 Oct 09, 2024.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.528
+  exclusion.robots: 0.027
+  exclusion.robots.policy: 0.015
+  esindex: 0.012
+  cdx.remote: 29.449
+  LoadShardBlock: 441.301 (3)
+  PetaboxLoader3.datanode: 193.714 (5)
+  PetaboxLoader3.resolve: 625.108 (4)
+  load_resource: 429.028 (2)
+-->
