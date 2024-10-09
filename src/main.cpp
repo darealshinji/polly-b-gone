@@ -217,6 +217,8 @@ int main(int argc, char** argv) {
   }
 #endif
 
+  Sounds::initialize();
+
   world = Worlds::fromFile("world.xml");
   if (!world) {
     return 1;
@@ -239,8 +241,6 @@ int main(int argc, char** argv) {
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
 
-  Sounds::initialize();
-  // resizeSurface(defaultWidth, defaultHeight);
   toggleFullScreen();
   eventLoop();
 
