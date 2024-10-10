@@ -281,15 +281,6 @@ static void eventLoop() {
 }
 
 int main(int argc, char** argv) {
-#if defined(STORAGE_PATH) && !defined(__APPLE__) && !defined(__WIN32__)
-  if (Resources::path()) {
-    std::cout << "loading game files from: " << Resources::path() << std::endl;
-  } else {
-    std::cerr << "error: cannot find directory containing \"worlds.xml\"" << std::endl;
-    return 1;
-  }
-#endif
-
   Sounds::initialize();
 
   world = Worlds::fromFile("world.xml");

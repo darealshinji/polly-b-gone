@@ -9,7 +9,6 @@ bin_PROGRAMS = polly-b-gone
 
 
 polly_b_gone_CXXFLAGS = \
-	-DSTORAGE_PATH="\"${datadir}/${PACKAGE_TARNAME}/\"" \
 	$(GL_CFLAGS) \
 	$(GLU_CFLAGS) \
 	$(GLUT_CFLAGS) \
