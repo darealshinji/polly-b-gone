@@ -1,9 +1,8 @@
 // -*- C++ -*-
 
-#ifdef WITH_GLUT
-  #include <GL/glut.h>
-#endif
+#include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glut.h>
 #include <algorithm>
 #include <iostream>
 #include <math.h>
@@ -545,9 +544,7 @@ class TeapotModel : public Model {
 public:
   virtual void display() {
     glFrontFace(GL_CW);
-#ifdef WITH_GLUT
     glutSolidTeapot(1.f);
-#endif
     glFrontFace(GL_CCW);
   }
 };
@@ -555,9 +552,7 @@ public:
 class IcosahedronModel : public Model {
 public:
   virtual void display() {
-#ifdef WITH_GLUT
     glutSolidIcosahedron();
-#endif
   }
 };
 

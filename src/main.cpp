@@ -2,15 +2,12 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
-#if !defined(__APPLE__) && defined(WITH_GLUT)
-  #include <GL/glut.h>
-#endif
+#include <GL/glut.h>
 #include <iostream>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <tinyxml.h>
 
 #include "resource.h"
 #include "room.h"
@@ -26,8 +23,6 @@ static const int defaultWidth = 640;
 static const int defaultHeight = 480;
 static int screenWidth = 0;
 static int screenHeight = 0;
-//static const int defaultX = 50;
-//static const int defaultY = 50;
 static const float kd = .060f; // frame-rate dependent
 
 static bool run = true;
@@ -35,7 +30,6 @@ static bool fullScreen = false;
 static int volume = 10; /* 0-10 */
 
 static World* world = NULL;
-//static bool wireframe = false;
 
 static Shader* shaders[] = {
   Shaders::defaultShader(),
@@ -289,12 +283,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-#ifdef WITH_GLUT
   glutInit(&argc, argv);
-#else
-  (void)argc;
-  (void)argv;
-#endif
 
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 

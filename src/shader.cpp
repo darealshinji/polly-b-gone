@@ -1,13 +1,10 @@
 // -*- C++ -*-
 
-#ifndef __APPLE__
-  #ifdef WITH_GLEW
-    #include <GL/glew.h>
-  #else
-    #include <GLES2/gl2.h>
-  #endif
+#ifdef _WIN32
+  #include <GL/glew.h>
+#else
+  #include <GLES2/gl2.h>
 #endif
-
 #include <stdlib.h>
 
 #include "model.h"
