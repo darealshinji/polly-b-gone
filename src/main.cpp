@@ -28,6 +28,7 @@ static const float kd = .060f; // frame-rate dependent
 static bool run = true;
 static bool fullScreen = false;
 static int volume = 10; /* 0-10 */
+static int sdl_rv = -1;
 
 static World* world = NULL;
 
@@ -240,8 +241,12 @@ static void handleKeyUp(SDL_Event* event) {
 
 static void handleQuit() {
   Sounds::dispose();
-  delete world;
-  SDL_Quit();
+  if (world) {
+    delete world;
+  }
+  if (sdl_rv != -1) {
+    SDL_Quit();
+  }
 }
 
 static void eventLoop() {
@@ -279,13 +284,21 @@ int main(int argc, char** argv) {
 
   world = Worlds::fromFile("world.xml");
   if (!world) {
-    Sounds::dispose();
+    handleQuit();
     return 1;
   }
 
   glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO /*| SDL_INIT_TIMER | SDL_INIT_JOYSTICK*/);
+  if (sdl_rv == -1) {
+    std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
+    handleQuit();
+    return 1;
+  }
+
+  //SDL_Delay(100);
 
   SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
