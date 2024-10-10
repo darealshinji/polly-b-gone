@@ -7,6 +7,7 @@
 #endif
 #include <iostream>
 #include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <tinyxml.h>
@@ -31,6 +32,7 @@ static const float kd = .060f; // frame-rate dependent
 
 static bool run = true;
 static bool fullScreen = false;
+static int volume = 10; /* 0-10 */
 
 static World* world = NULL;
 //static bool wireframe = false;
@@ -118,56 +120,127 @@ static void toggleFullScreen() {
   }
 }
 
-#ifdef __APPLE__
-  #define POLLY_SKIP KMOD_META
-#else
-  #define POLLY_SKIP KMOD_CTRL
-#endif
+static void musicVolumeSet() {
+  if (volume < 0) {
+    volume = 0;
+  } else if (volume > 10) {
+    volume = 10;
+  }
+  /* volume range 0-128 */
+  float f = (float)volume * 12.8f;
+  Mix_VolumeMusic((int)f);
+}
+
 static void handleKeyDown(SDL_Event* event) {
   switch (event->key.keysym.sym) {
-    case SDLK_LEFT: {
-      if (event->key.keysym.mod & POLLY_SKIP) {
-        world->previousRoom();
-      }
+    /* move forward */
+    case SDLK_w:
+    case SDLK_UP:
+    case SDLK_KP8:
+      world->player().move(Player::FORWARD);
       break;
-    }
-    case SDLK_DOWN: {
-      if (event->key.keysym.mod & POLLY_SKIP) {
-        world->resetPlayer();
-      }
+
+    /* turn left */
+    case SDLK_a:
+    case SDLK_LEFT:
+    case SDLK_KP4:
+      world->player().move(Player::LEFT);
       break;
-    }
-    case SDLK_RIGHT: {
-      if (event->key.keysym.mod & POLLY_SKIP) {
-        world->nextRoom();
-      }
+
+    /* turn right */
+    case SDLK_d:
+    case SDLK_RIGHT:
+    case SDLK_KP6:
+      world->player().move(Player::RIGHT);
       break;
-    }
-    case SDLK_a: world->player().move(Player::LEFT); break;
-    case SDLK_s: world->player().move(Player::BACKWARD); break;
-    case SDLK_d: world->player().move(Player::RIGHT); break;
-    case SDLK_w: world->player().move(Player::FORWARD); break;
-    default: break;
+
+    /* move backward */
+    case SDLK_s:
+    case SDLK_DOWN:
+    case SDLK_KP2:
+      world->player().move(Player::BACKWARD);
+      break;
+
+    case SDLK_PAGEUP:
+      world->nextRoom();
+      break;
+    case SDLK_PAGEDOWN:
+      world->previousRoom();
+      break;
+    case SDLK_BACKSPACE:
+      world->resetPlayer();
+      break;
+
+    /* music volume */
+    case SDLK_KP_MINUS:
+      volume--;
+      musicVolumeSet();
+      break;
+    case SDLK_KP_PLUS:
+      volume++;
+      musicVolumeSet();
+      break;
+
+    default:
+      break;
   }
 }
-#undef POLLY_SKIP
 
 static void handleKeyUp(SDL_Event* event) {
   switch (event->key.keysym.sym) {
-    case SDLK_a: world->player().stop(Player::LEFT); break;
-    case SDLK_s: world->player().stop(Player::BACKWARD); break;
-    case SDLK_d: world->player().stop(Player::RIGHT); break;
-    case SDLK_w: world->player().stop(Player::FORWARD); break;
-    case SDLK_SPACE: world->togglePaused(); break;
-#ifdef __APPLE__
-    case SDLK_q: if (!(event->key.keysym.mod & KMOD_META)) break;
-#endif
-    case SDLK_ESCAPE: run = false; break;
-    case SDLK_F4: if (event->key.keysym.mod & KMOD_ALT) run = false; break; // Alt+F4
-    case SDLK_F9: toggleShader(); break;
-    case SDLK_F10: world->toggleDebug(); break;
-    case SDLK_F11: toggleFullScreen(); break;
-    default: break;
+    /* stop moving forward */
+    case SDLK_w:
+    case SDLK_UP:
+    case SDLK_KP8:
+      world->player().stop(Player::FORWARD);
+      break;
+
+    /* stop turning left */
+    case SDLK_a:
+    case SDLK_LEFT:
+    case SDLK_KP4:
+      world->player().stop(Player::LEFT);
+      break;
+
+    /* stop turning right */
+    case SDLK_d:
+    case SDLK_RIGHT:
+    case SDLK_KP6:
+      world->player().stop(Player::RIGHT);
+      break;
+
+    /* stop moving backward */
+    case SDLK_s:
+    case SDLK_DOWN:
+    case SDLK_KP2:
+      world->player().stop(Player::BACKWARD);
+      break;
+
+    case SDLK_SPACE:
+    case SDLK_PAUSE:
+      world->togglePaused();
+      break;
+    case SDLK_ESCAPE:
+      run = false;
+      break;
+
+    case SDLK_F4:
+      if (event->key.keysym.mod & KMOD_ALT) {
+        run = false; /* Alt+F4 */
+      }
+      break;
+    case SDLK_F9:
+      toggleShader();
+      break;
+    case SDLK_F10:
+      world->toggleDebug();
+      break;
+    case SDLK_F11:
+      toggleFullScreen();
+      break;
+
+    default:
+      break;
   }
 }
 
@@ -221,10 +294,11 @@ int main(int argc, char** argv) {
 
   world = Worlds::fromFile("world.xml");
   if (!world) {
+    Sounds::dispose();
     return 1;
   }
 
-#if !defined(__APPLE__) && defined(WITH_GLUT)
+#ifdef WITH_GLUT
   glutInit(&argc, argv);
 #else
   (void)argc;
