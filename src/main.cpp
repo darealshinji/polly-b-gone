@@ -280,25 +280,15 @@ static void eventLoop() {
 }
 
 int main(int argc, char** argv) {
-  Sounds::initialize();
-
-  world = Worlds::fromFile("world.xml");
-  if (!world) {
-    handleQuit();
-    return 1;
-  }
-
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO /*| SDL_INIT_TIMER | SDL_INIT_JOYSTICK*/);
+  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER /*| SDL_INIT_JOYSTICK*/);
   if (sdl_rv == -1) {
     std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
     handleQuit();
     return 1;
   }
-
-  //SDL_Delay(100);
 
   SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -310,6 +300,18 @@ int main(int argc, char** argv) {
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
   SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
+
+  Sounds::initialize();
+
+  world = Worlds::fromFile("world.xml");
+  if (!world) {
+    handleQuit();
+    return 1;
+  }
+
+  /* set initial volume level */
+  volume = 6; // 60%
+  musicVolumeSet();
 
   toggleFullScreen();
   eventLoop();
