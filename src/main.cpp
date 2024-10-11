@@ -36,7 +36,10 @@ static Shader* shader() {
 }
 
 static void resizeSurface(int width, int height) {
-  uint32_t flags = SDL_OPENGL | SDL_RESIZABLE;
+  uint32_t flags = SDL_OPENGL |
+                   SDL_RESIZABLE |
+                   SDL_HWSURFACE |
+                   SDL_DOUBLEBUF;
   if (fullScreen) {
     flags |= SDL_FULLSCREEN;
   }
@@ -52,7 +55,7 @@ static void resizeSurface(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.f, width / (float) height, 1.0f, 100.f);
+  gluPerspective(45.f, (float)width / (float)height, 1.0f, 100.f);
   glMatrixMode(GL_MODELVIEW);
   glClearColor(0.f, 0.f, 0.f, 0.f);
 
