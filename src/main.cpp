@@ -19,27 +19,19 @@
 
 using namespace mbostock;
 
-static const int defaultWidth = 640;
-static const int defaultHeight = 480;
 static int screenWidth = 0;
 static int screenHeight = 0;
-static const float kd = .060f; // frame-rate dependent
-
 static bool run = true;
 static bool fullScreen = false;
-
 static World* world = NULL;
-
-static Shader* shaders[] = {
-  Shaders::defaultShader(),
-  Shaders::wireframeShader(),
-  Shaders::normalShader()
-};
-
 static int shaderi = 0;
-static const int shadern = 3;
 
 static Shader* shader() {
+  static Shader* shaders[] = {
+    Shaders::defaultShader(),
+    Shaders::wireframeShader(),
+    Shaders::normalShader()
+  };
   return shaders[shaderi];
 }
 
@@ -79,6 +71,8 @@ static void handleDisplay() {
   const Vector& min = world->room().cameraBounds().min();
   const Vector& max = world->room().cameraBounds().max();
 
+  const float kd = .060f; /* frame-rate dependent */
+
   /* Interpolate the eye location. */
   Vector ee(p.x, p.y + 4.f, p.z + 6.f);
   ee = Vector::min(Vector::max(min, ee), max);
@@ -98,6 +92,7 @@ static void handleDisplay() {
 }
 
 static void toggleShader() {
+  const int shadern = 3;
   shaderi = (shaderi + 1) % shadern;
   shader()->initialize();
 }
@@ -108,7 +103,7 @@ static void toggleFullScreen() {
     resizeSurface(screenWidth, screenHeight);
     SDL_ShowCursor(SDL_DISABLE);
   } else {
-    resizeSurface(defaultWidth, defaultHeight);
+    resizeSurface(640, 480);
     SDL_ShowCursor(SDL_ENABLE);
   }
 }
