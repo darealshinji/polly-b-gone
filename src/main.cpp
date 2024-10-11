@@ -27,7 +27,6 @@ static const float kd = .060f; // frame-rate dependent
 
 static bool run = true;
 static bool fullScreen = false;
-static int sdl_rv = -1;
 
 static World* world = NULL;
 
@@ -227,9 +226,7 @@ static void handleKeyUp(SDL_Event* event) {
 
 static void handleQuit() {
   Sounds::dispose();
-  if (sdl_rv != -1) {
-    SDL_Quit();
-  }
+  SDL_Quit();
   if (world) {
     delete world;
   }
@@ -259,16 +256,13 @@ static void eventLoop() {
     }
     SDL_Delay(10);
   }
-  handleQuit();
-  return;
 }
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-  if (sdl_rv == -1) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) == -1) {
     std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
     return 1;
   }
@@ -294,6 +288,7 @@ int main(int argc, char** argv) {
 
   toggleFullScreen();
   eventLoop();
+  handleQuit();
 
   return 0;
 }
