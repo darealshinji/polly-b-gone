@@ -149,6 +149,7 @@ static void handleKeyDown(SDL_Event* event) {
     case SDLK_PAGEDOWN:
       world->previousRoom();
       break;
+    case SDLK_r:
     case SDLK_BACKSPACE:
       world->resetPlayer();
       break;

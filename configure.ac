@@ -28,8 +28,8 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror dist-xz foreign subdir-objects])
 AM_SILENT_RULES([yes])
 
-: ${CFLAGS="-Wall -O2"}
-: ${CXXFLAGS="-Wall -O2"}
+: ${CFLAGS="-Wall -O3"}
+: ${CXXFLAGS="-Wall -O3"}
 : ${LDFLAGS="-s"}
 
 AC_PROG_CC
