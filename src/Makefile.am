@@ -16,7 +16,7 @@ polly_b_gone_CXXFLAGS = \
 	$(SDL_CFLAGS) \
 	$(SDL_IMAGE_CFLAGS) \
 	$(SDL_MIXER_CFLAGS) \
-	$(TINYXML_CFLAGS)
+	$(TINYXML2_CFLAGS)
 
 polly_b_gone_LDADD = \
 	$(GL_LIBS) \
@@ -26,7 +26,7 @@ polly_b_gone_LDADD = \
 	$(SDL_LIBS) \
 	$(SDL_IMAGE_LIBS) \
 	$(SDL_MIXER_LIBS) \
-	$(TINYXML_LIBS)
+	$(TINYXML2_LIBS)
 
 polly_b_gone_SOURCES = \
 	ball.cpp \

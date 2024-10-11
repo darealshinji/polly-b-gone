@@ -1,12 +1,11 @@
-#ifndef TIXML_USE_STL
-  #define TIXML_USE_STL
-#endif
-#include <tinyxml.h>
+#include <tinyxml2.h>
+#include <ctype.h>
 #include <iostream>
 #include <list>
 #include <map>
 #include <math.h>
 #include <string>
+#include <string.h>
 #include <vector>
 
 #include "ball.h"
@@ -29,6 +28,9 @@
 #include "wall.h"
 #include "world.h"
 #include "worlds.h"
+
+typedef tinyxml2::XMLElement TiXmlElement;
+typedef tinyxml2::XMLDocument TiXmlDocument;
 
 namespace mbostock {
 
@@ -118,6 +120,8 @@ namespace mbostock {
     int findRoom(const char* name);
     int findRoomOrigin(const char* name);
 
+    static std::string xmlErrorMessage(const char* errorName);
+
     TiXmlDocument document_;
     World* world_;
     std::map<std::string, Lighting*> lightings_;
@@ -143,12 +147,30 @@ XmlWorldBuilder::XmlWorldBuilder()
     : world_(NULL) {
 }
 
+std::string XmlWorldBuilder::xmlErrorMessage(const char* errorName) {
+  std::string str = errorName;
+  if (str == "XML_ERROR_COUNT") {
+    return str;
+  } else if (str.compare(0, 4, "XML_") == 0) {
+    str.erase(0, 4);
+  }
+  for (size_t i = 0; i < str.size(); i++) {
+    if (str[i] == '_') {
+      str[i] = ' ';
+    } else {
+      str[i] = tolower(str[i]);
+    }
+  }
+  return str;
+}
+
 World* XmlWorldBuilder::parseWorld(const char* path) {
   std::string fullPath(Resources::path());
   fullPath.append(path);
-  if (!document_.LoadFile(fullPath.c_str())) {
+  document_.LoadFile(fullPath.c_str());
+  if (document_.Error()) {
     std::cerr << "Error loading world \"" << path << "\": ";
-    std::cerr << document_.ErrorDesc() << "\n";
+    std::cerr << xmlErrorMessage(document_.ErrorName()) << std::endl;
     return NULL;
   }
 
@@ -303,8 +325,8 @@ void XmlWorldBuilder::parseMaterial(TiXmlElement* e) {
 }
 
 void XmlWorldBuilder::parseMaterialParameter(Material* m, TiXmlElement* e) {
-  const std::string& name = e->ValueStr();
-  if (name == "texture") {
+  const char* name = e->Value();
+  if (name != NULL && strcmp(name, "texture") == 0) {
     m->setTexture(e->Attribute("path"));
     return;
   }
@@ -315,14 +337,16 @@ void XmlWorldBuilder::parseMaterialParameter(Material* m, TiXmlElement* e) {
   e->QueryFloatAttribute("b", &b);
   e->QueryFloatAttribute("a", &a);
 
-  if (name == "ambient") {
-    m->setAmbient(r, g, b, a);
-  } else if (name == "diffuse") {
-    m->setDiffuse(r, g, b, a);
-  } else if (name == "emission") {
-    m->setEmission(r, g, b, a);
-  } else if (name == "specular") {
-    m->setSpecular(r, g, b, a);
+  if (name != NULL) {
+    if (strcmp(name, "ambient") == 0) {
+      m->setAmbient(r, g, b, a);
+    } else if (strcmp(name, "diffuse") == 0) {
+      m->setDiffuse(r, g, b, a);
+    } else if (strcmp(name, "emission") == 0) {
+      m->setEmission(r, g, b, a);
+    } else if (strcmp(name, "specular") == 0) {
+      m->setSpecular(r, g, b, a);
+    }
   }
 }
 
@@ -365,11 +389,13 @@ void XmlWorldBuilder::parseRoomCameraBounds(Room* r, TiXmlElement* e) {
 void XmlWorldBuilder::parseRoomTopLevelObjects(Room* r, TiXmlElement* e) {
   for (TiXmlElement* o = e->FirstChildElement(); o != NULL;
        o = o->NextSiblingElement()) {
-    const std::string& name = o->ValueStr();
-    if (name == "origin") {
-      r->addOrigin(parseRoomOrigin(o));
-    } else if (name == "portal") {
-      r->addPortal(parseRoomPortal(o));
+    const char* name = o->Value();
+    if (name != NULL) {
+      if (strcmp(name, "origin") == 0) {
+        r->addOrigin(parseRoomOrigin(o));
+      } else if (strcmp(name, "portal") == 0) {
+        r->addPortal(parseRoomPortal(o));
+      }
     }
   }
   parseRoomObjects(r, e);
@@ -378,18 +404,22 @@ void XmlWorldBuilder::parseRoomTopLevelObjects(Room* r, TiXmlElement* e) {
 void XmlWorldBuilder::parseRoomObjects(Room* r, TiXmlElement* e) {
   for (TiXmlElement* o = e->FirstChildElement(); o != NULL;
        o = o->NextSiblingElement()) {
-    const std::string& name = o->ValueStr();
-    if (name == "constant-force") {
-      r->addForce(parseRoomConstantForce(o));
-    } else if (name == "rotation") {
-      parseRotation(r, o);
-    } else if (name == "translation") {
-      parseTranslation(r, o);
-    } else {
-      RoomObject* ro = parseRoomObject(o);
-      if (ro != NULL) { // ignore unknown objects
-        r->addObject(applyTransforms(ro));
+    const char* name = o->Value();
+    if (name != NULL) {
+      if (strcmp(name, "constant-force") == 0) {
+        r->addForce(parseRoomConstantForce(o));
+        continue;
+      } else if (strcmp(name, "rotation") == 0) {
+        parseRotation(r, o);
+        continue;
+      } else if (strcmp(name, "translation") == 0) {
+        parseTranslation(r, o);
+        continue;
       }
+    }
+    RoomObject* ro = parseRoomObject(o);
+    if (ro != NULL) { // ignore unknown objects
+      r->addObject(applyTransforms(ro));
     }
   }
 }
@@ -474,25 +504,27 @@ Portal* XmlWorldBuilder::parseRoomPortal(TiXmlElement* e) {
 }
 
 RoomObject* XmlWorldBuilder::parseRoomObject(TiXmlElement* e) {
-  const std::string& name = e->ValueStr();
-  if (name == "block") {
-    return parseRoomBlock(e);
-  } else if (name == "wall") {
-    return parseRoomWall(e);
-  } else if (name == "escalator") {
-    return parseRoomEscalator(e);
-  } else if (name == "seesaw") {
-    return parseRoomSeesaw(e);
-  } else if (name == "ramp") {
-    return parseRoomRamp(e);
-  } else if (name == "tube") {
-    return parseRoomTube(e);
-  } else if (name == "ball") {
-    return parseRoomBall(e);
-  } else if (name == "fan") {
-    return parseRoomFan(e);
-  } else if (name == "switch") {
-    return parseRoomSwitch(e);
+  const char* name = e->Value();
+  if (name != NULL) {
+    if (strcmp(name, "block") == 0) {
+      return parseRoomBlock(e);
+    } else if (strcmp(name, "wall") == 0) {
+      return parseRoomWall(e);
+    } else if (strcmp(name, "escalator") == 0) {
+      return parseRoomEscalator(e);
+    } else if (strcmp(name, "seesaw") == 0) {
+      return parseRoomSeesaw(e);
+    } else if (strcmp(name, "ramp") == 0) {
+      return parseRoomRamp(e);
+    } else if (strcmp(name, "tube") == 0) {
+      return parseRoomTube(e);
+    } else if (strcmp(name, "ball") == 0) {
+      return parseRoomBall(e);
+    } else if (strcmp(name, "fan") == 0) {
+      return parseRoomFan(e);
+    } else if (strcmp(name, "switch") == 0) {
+      return parseRoomSwitch(e);
+    }
   }
   return NULL;
 }

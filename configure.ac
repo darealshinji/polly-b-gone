@@ -54,7 +54,7 @@ AX_CHECK_PKG_LIB([SDL], [sdl < 2], [SDL], [SDL/SDL.h SDL/SDL_error.h])
 AX_CHECK_PKG_LIB([SDL_IMAGE], [SDL_image < 2], [SDL_image], [SDL/SDL_image.h])
 AX_CHECK_PKG_LIB([SDL_MIXER], [SDL_mixer < 2], [SDL_mixer], [SDL/SDL_mixer.h])
 
-AX_CHECK_PKG_LIB([TINYXML], [tinyxml], [tinyxml], [tinyxml.h])
+AX_CHECK_PKG_LIB([TINYXML2], [tinyxml2], [tinyxml2], [tinyxml2.h])
 
 
 AC_ARG_ENABLE([non-free],
