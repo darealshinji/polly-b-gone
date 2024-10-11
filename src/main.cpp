@@ -27,7 +27,6 @@ static const float kd = .060f; // frame-rate dependent
 
 static bool run = true;
 static bool fullScreen = false;
-static int volume = 10; /* 0-10 */
 static int sdl_rv = -1;
 
 static World* world = NULL;
@@ -115,17 +114,6 @@ static void toggleFullScreen() {
   }
 }
 
-static void musicVolumeSet() {
-  if (volume < 0) {
-    volume = 0;
-  } else if (volume > 10) {
-    volume = 10;
-  }
-  /* volume range 0-128 */
-  float f = (float)volume * 12.8f;
-  Mix_VolumeMusic((int)f);
-}
-
 static void handleKeyDown(SDL_Event* event) {
   switch (event->key.keysym.sym) {
     /* move forward */
@@ -168,12 +156,10 @@ static void handleKeyDown(SDL_Event* event) {
 
     /* music volume */
     case SDLK_KP_MINUS:
-      volume--;
-      musicVolumeSet();
+      Sounds::volumeLower();
       break;
     case SDLK_KP_PLUS:
-      volume++;
-      musicVolumeSet();
+      Sounds::volumeHigher();
       break;
 
     default:
@@ -241,11 +227,11 @@ static void handleKeyUp(SDL_Event* event) {
 
 static void handleQuit() {
   Sounds::dispose();
-  if (world) {
-    delete world;
-  }
   if (sdl_rv != -1) {
     SDL_Quit();
+  }
+  if (world) {
+    delete world;
   }
 }
 
@@ -255,22 +241,20 @@ static void eventLoop() {
     handleDisplay();
     if (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_VIDEORESIZE: {
+        case SDL_VIDEORESIZE:
           resizeSurface(event.resize.w, event.resize.h);
           break;
-        }
-        case SDL_KEYDOWN: {
+        case SDL_KEYDOWN:
           handleKeyDown(&event);
           break;
-        }
-        case SDL_KEYUP: {
+        case SDL_KEYUP:
           handleKeyUp(&event);
           break;
-        }
-        case SDL_QUIT: {
+        case SDL_QUIT:
           run = false;
           break;
-        }
+        default:
+          break;
       }
     }
     SDL_Delay(10);
@@ -283,10 +267,9 @@ int main(int argc, char** argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER /*| SDL_INIT_JOYSTICK*/);
+  sdl_rv = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
   if (sdl_rv == -1) {
     std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
-    handleQuit();
     return 1;
   }
 
@@ -308,10 +291,6 @@ int main(int argc, char** argv) {
     handleQuit();
     return 1;
   }
-
-  /* set initial volume level */
-  volume = 6; // 60%
-  musicVolumeSet();
 
   toggleFullScreen();
   eventLoop();

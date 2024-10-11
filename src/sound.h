@@ -18,9 +18,13 @@ namespace mbostock {
     static void pause();
     static void resume();
     static void dispose();
+    static void volumeHigher();
+    static void volumeLower();
     static Sound& fromFile(const char* path);
 
   private:
+    static int volume_;
+    static void setVolume();
     Sounds();
   };
 

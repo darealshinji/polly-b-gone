@@ -116,8 +116,11 @@ static std::vector<SoundImpl*>& sounds() {
   return v;
 }
 
+int Sounds::volume_ = 6; /* 60% */
+
 void Sounds::initialize() {
   Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 1024);
+  setVolume();
 }
 
 void Sounds::dispose() {
@@ -128,6 +131,27 @@ void Sounds::dispose() {
     delete *i;
   }
   Mix_CloseAudio();
+}
+
+void Sounds::volumeHigher() {
+  ++volume_;
+  setVolume();
+}
+
+void Sounds::volumeLower() {
+  --volume_;
+  setVolume();
+}
+
+void Sounds::setVolume() {
+  if (volume_ < 0) {
+    volume_ = 0;
+  } else if (volume_ > 10) {
+    volume_ = 10;
+  }
+  /* Volume range is 0-128 */
+  float f = (float)volume_ * 12.8f;
+  Mix_VolumeMusic((int)f);
 }
 
 Sound& Sounds::fromFile(const char* path) {
