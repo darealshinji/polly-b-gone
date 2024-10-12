@@ -261,7 +261,7 @@ int main(int argc, char** argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) == -1) {
+  if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
     std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
     return 1;
   }
