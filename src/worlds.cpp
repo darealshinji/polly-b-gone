@@ -453,10 +453,9 @@ void XmlWorldBuilder::parseTranslation(Room* r, TiXmlElement* e) {
       s, u, kd);
   const char* mode = e->Attribute("mode");
   if (mode != NULL) {
-    std::string modeString = mode;
-    if (modeString == "one-way") {
+    if (strcmp(mode, "one-way") == 0) {
       z->setMode(Translation::ONE_WAY);
-    } else if (modeString == "reset") {
+    } else if (strcmp(mode, "reset") == 0) {
       z->setMode(Translation::RESET);
     }
   }
@@ -505,7 +504,7 @@ Portal* XmlWorldBuilder::parseRoomPortal(TiXmlElement* e) {
 
 RoomObject* XmlWorldBuilder::parseRoomObject(TiXmlElement* e) {
   const char* name = e->Value();
-  if (name != NULL) {
+  if (name != NULL && name[0] >= 'b' && name[0] <= 'w') {
     if (strcmp(name, "block") == 0) {
       return parseRoomBlock(e);
     } else if (strcmp(name, "wall") == 0) {
@@ -776,7 +775,11 @@ int XmlWorldBuilder::findRoom(const char* name) {
 
 int XmlWorldBuilder::findRoomOrigin(const char* name) {
   std::string s = name;
-  int i = s.find('.');
+  size_t i = s.find('.');
+  if (i == std::string::npos) {
+    std::cerr << "Error: could not find room " << name << "\n";
+    return -1;
+  }
   std::string roomName = s.substr(0, i);
   std::string originName = s.substr(i + 1);
   TiXmlElement* e = document_.FirstChildElement("world");
@@ -814,8 +817,8 @@ Vector XmlWorldBuilder::parseVector(TiXmlElement* e) {
 }
 
 bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name) {
-  static const std::string istrue = "true";
-  return istrue == e->Attribute(name);
+  const char* value = e->Attribute(name);
+  return (value != NULL && strcmp(value, "true") == 0);
 }
 
 bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name, bool d) {
@@ -823,8 +826,7 @@ bool XmlWorldBuilder::parseBool(TiXmlElement* e, const char* name, bool d) {
   if (value == NULL) {
     return d;
   }
-  static const std::string istrue = "true";
-  return istrue == value;
+  return (strcmp(value, "true") == 0);
 }
 
 World* Worlds::fromFile(const char* path) {
