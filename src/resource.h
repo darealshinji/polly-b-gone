@@ -8,7 +8,7 @@ namespace mbostock {
   class Resources {
   public:
     static const char* path();
-    static const char* readFile(const char* path);
+    static char* readFile(const char* path);
 
   private:
     Resources();

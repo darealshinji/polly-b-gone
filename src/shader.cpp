@@ -77,7 +77,7 @@ void GlslShader::initialize() {
 
 void GlslShader::attach(const char* path, GLenum shaderType) {
   GLuint shader = glCreateShader(shaderType);
-  const char* source = Resources::readFile(path);
+  char* source = Resources::readFile(path);
   glShaderSource(shader, 1, &source, NULL);
   delete[] source;
   glCompileShader(shader);
