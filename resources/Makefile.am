@@ -23,18 +23,18 @@ EXTRA_DIST += \
 	polly-b-gone_128x128.png
 
 
-game_DATA_NONFREE = \
-	non-free/04ptboyf.ogg \
-	non-free/ceramic.jpg \
-	non-free/clovers.jpg \
-	non-free/concrete.jpg \
-	non-free/drain.jpg \
-	non-free/half.ogg \
-	non-free/hidnseek.ogg \
-	non-free/ivy.jpg \
-	non-free/metal.jpg \
-	non-free/world.xml
-EXTRA_DIST += $(game_DATA_NONFREE)
+game_DATA_ORIGINAL = \
+	original/04ptboyf.ogg \
+	original/ceramic.jpg \
+	original/clovers.jpg \
+	original/concrete.jpg \
+	original/drain.jpg \
+	original/half.ogg \
+	original/hidnseek.ogg \
+	original/ivy.jpg \
+	original/metal.jpg \
+	original/world.xml
+EXTRA_DIST += $(game_DATA_ORIGINAL)
 
 game_DATA_GPL = \
 	ceramic.jpg \
@@ -56,8 +56,8 @@ game_DATA_ANY = \
 EXTRA_DIST += $(game_DATA_ANY)
 
 gamedir = $(pkgdatadir)
-if NONFREE
-game_DATA = $(game_DATA_NONFREE)
+if ORIGINAL_RESOURCES
+game_DATA = $(game_DATA_ORIGINAL)
 else
 game_DATA = $(game_DATA_GPL)
 endif

@@ -57,9 +57,9 @@ AX_CHECK_PKG_LIB([SDL_MIXER], [SDL_mixer < 2], [SDL_mixer], [SDL/SDL_mixer.h])
 AX_CHECK_PKG_LIB([TINYXML2], [tinyxml2], [tinyxml2], [tinyxml2.h])
 
 
-AC_ARG_ENABLE([non-free],
-    AS_HELP_STRING([--enable-non-free], [install original non-free game files]))
-AM_CONDITIONAL([NONFREE], [test "x$enable_non_free" = "xyes"])
+AC_ARG_ENABLE([original],
+    AS_HELP_STRING([--enable-original], [install original CC-licensed game files]))
+AM_CONDITIONAL([ORIGINAL_RESOURCES], [test "x$enable_original" = "xyes"])
 
 
 AC_CONFIG_FILES([Makefile
