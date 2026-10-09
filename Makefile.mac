@@ -5,7 +5,7 @@ CXXFLAGS = \
 	-I/System/Library/Frameworks/SDL.framework/Headers \
 	-I/System/Library/Frameworks/SDL_image.framework/Headers \
 	-I/System/Library/Frameworks/SDL_mixer.framework/Headers \
-	-I/System/Library/Frameworks/TinyXML.framework/Headers
+	-I/System/Library/Frameworks/TinyXML2.framework/Headers
 
 LDFLAGS = \
 	-framework Cocoa \
@@ -14,13 +14,16 @@ LDFLAGS = \
 	-framework SDL \
 	-framework SDL_image \
 	-framework SDL_mixer \
-	-framework TinyXML
+	-framework TinyXML2
+
+NEW_OR_ORIG = new
+#NEW_OR_ORIG = original
 
 RESOURCES = \
 	resources/Polly.icns \
 	resources/*.frag \
-	resources/*.jpg \
-	resources/*.ogg \
+	resources/$(NEW_OR_ORIG)/*.jpg \
+	resources/$(NEW_OR_ORIG)/*.ogg \
 	resources/*.png \
 	resources/*.vert \
 	resources/world.xml
@@ -97,9 +100,11 @@ obj/Polly-B-Gone.app : obj/main.out $(RESOURCES) resources/Info.plist Makefile
 obj/%.out : obj/%.o
 	$(CXX) $(LDFLAGS) -o $@ $^
 
-obj/%.o : src/%.cpp
-	mkdir -p $(@D)
+obj/%.o : src/%.cpp obj/physics
 	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+obj/physics:
+	mkdir -p $@
 
 .PRECIOUS : obj/%.o obj/physics/%.o
 
