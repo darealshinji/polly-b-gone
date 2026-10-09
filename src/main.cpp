@@ -4,8 +4,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <iostream>
-#include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,12 +19,20 @@
 
 using namespace mbostock;
 
+static const int defaultWidth = 640;
+static const int defaultHeight = 480;
 static int screenWidth = 0;
 static int screenHeight = 0;
+static int windowWidth = defaultWidth;
+static int windowHeight = defaultHeight;
 static bool run = true;
 static bool fullScreen = false;
 static World* world = NULL;
 static int shaderi = 0;
+
+static SDL_Window* window = NULL;
+static SDL_GLContext glContext = NULL;
+static SDL_GameController* controller = NULL;
 
 static Shader* shader() {
   static Shader* shaders[] = {
@@ -36,26 +44,24 @@ static Shader* shader() {
 }
 
 static void resizeSurface(int width, int height) {
-  uint32_t flags = SDL_OPENGL |
-                   SDL_RESIZABLE |
-                   SDL_HWSURFACE |
-                   SDL_DOUBLEBUF;
-  if (fullScreen) {
-    flags |= SDL_FULLSCREEN;
-  }
-  SDL_SetVideoMode(width, height, 24, flags);
-
-  /* Store the screen resolution when going into full screen. */
-  if (width == 0) {
-    const SDL_VideoInfo* info = SDL_GetVideoInfo();
-    width = screenWidth = info->current_w;
-    height = screenHeight = info->current_h;
+  if (width == 0 || height == 0) {
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    width = screenWidth = mode.w;
+    height = screenHeight = mode.h;
   }
 
-  glViewport(0, 0, width, height);
+  windowWidth = width;
+  windowHeight = height;
+
+  // Get actual drawable size (may differ from window size on HiDPI displays)
+  int drawableWidth, drawableHeight;
+  SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+
+  glViewport(0, 0, drawableWidth, drawableHeight);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(45.f, (float)width / (float)height, 1.0f, 100.f);
+  gluPerspective(45.f, (float)drawableWidth / (float)drawableHeight, 1.0f, 100.f);
   glMatrixMode(GL_MODELVIEW);
   glClearColor(0.f, 0.f, 0.f, 0.f);
 
@@ -91,7 +97,7 @@ static void handleDisplay() {
             0.f, 1.f, 0.f);
 
   shader()->display(world->model());
-  SDL_GL_SwapBuffers();
+  SDL_GL_SwapWindow(window);
 }
 
 static void toggleShader() {
@@ -103,11 +109,15 @@ static void toggleShader() {
 static void toggleFullScreen() {
   fullScreen = !fullScreen;
   if (fullScreen) {
-    resizeSurface(screenWidth, screenHeight);
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
     SDL_ShowCursor(SDL_DISABLE);
+    SDL_GL_GetDrawableSize(window, &windowWidth, &windowHeight);
+    resizeSurface(windowWidth, windowHeight);
   } else {
-    resizeSurface(640, 480);
+    SDL_SetWindowFullscreen(window, 0);
+    SDL_SetWindowSize(window, defaultWidth, defaultHeight);
     SDL_ShowCursor(SDL_ENABLE);
+    resizeSurface(defaultWidth, defaultHeight);
   }
 }
 
@@ -116,28 +126,24 @@ static void handleKeyDown(SDL_Event* event) {
     /* move forward */
     case SDLK_w:
     case SDLK_UP:
-    case SDLK_KP8:
       world->player().move(Player::FORWARD);
       break;
 
     /* turn left */
     case SDLK_a:
     case SDLK_LEFT:
-    case SDLK_KP4:
       world->player().move(Player::LEFT);
       break;
 
     /* turn right */
     case SDLK_d:
     case SDLK_RIGHT:
-    case SDLK_KP6:
       world->player().move(Player::RIGHT);
       break;
 
     /* move backward */
     case SDLK_s:
     case SDLK_DOWN:
-    case SDLK_KP2:
       world->player().move(Player::BACKWARD);
       break;
 
@@ -154,9 +160,11 @@ static void handleKeyDown(SDL_Event* event) {
 
     /* music volume */
     case SDLK_KP_MINUS:
+    case SDLK_MINUS:
       Sounds::volumeLower();
       break;
     case SDLK_KP_PLUS:
+    case SDLK_PLUS:
       Sounds::volumeHigher();
       break;
 
@@ -170,28 +178,24 @@ static void handleKeyUp(SDL_Event* event) {
     /* stop moving forward */
     case SDLK_w:
     case SDLK_UP:
-    case SDLK_KP8:
       world->player().stop(Player::FORWARD);
       break;
 
     /* stop turning left */
     case SDLK_a:
     case SDLK_LEFT:
-    case SDLK_KP4:
       world->player().stop(Player::LEFT);
       break;
 
     /* stop turning right */
     case SDLK_d:
     case SDLK_RIGHT:
-    case SDLK_KP6:
       world->player().stop(Player::RIGHT);
       break;
 
     /* stop moving backward */
     case SDLK_s:
     case SDLK_DOWN:
-    case SDLK_KP2:
       world->player().stop(Player::BACKWARD);
       break;
 
@@ -223,28 +227,106 @@ static void handleKeyUp(SDL_Event* event) {
   }
 }
 
+static void handleButtonDown(SDL_Event* event) {
+  switch (event->cbutton.button) {
+    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+    case SDL_CONTROLLER_BUTTON_A:
+      world->player().move(Player::FORWARD);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+      world->player().move(Player::LEFT);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+      world->player().move(Player::RIGHT);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+    case SDL_CONTROLLER_BUTTON_B:
+      world->player().move(Player::BACKWARD);
+      break;
+    default:
+      break;
+  }
+}
+
+static void handleButtonUp(SDL_Event* event) {
+  switch (event->cbutton.button) {
+    case SDL_CONTROLLER_BUTTON_DPAD_UP:
+    case SDL_CONTROLLER_BUTTON_A:
+      world->player().stop(Player::FORWARD);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+      world->player().stop(Player::LEFT);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+      world->player().stop(Player::RIGHT);
+      break;
+    case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+    case SDL_CONTROLLER_BUTTON_B:
+      world->player().stop(Player::BACKWARD);
+      break;
+
+    case SDL_CONTROLLER_BUTTON_START:
+    case SDL_CONTROLLER_BUTTON_TOUCHPAD:
+    case SDL_CONTROLLER_BUTTON_MISC1:
+      world->togglePaused();
+      break;
+
+    case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+      world->nextRoom();
+      break;
+    case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+      world->previousRoom();
+      break;
+    case SDL_CONTROLLER_BUTTON_Y:
+      world->resetPlayer();
+      break;
+    default:
+      break;
+  }
+}
+
 static void handleQuit() {
   Sounds::dispose();
+  if (world) delete world;
+  if (glContext) SDL_GL_DeleteContext(glContext);
+  if (window) SDL_DestroyWindow(window);
+  if (controller) SDL_GameControllerClose(controller);
   SDL_Quit();
-  if (world) {
-    delete world;
-  }
 }
 
 static void eventLoop() {
   SDL_Event event;
   while (run) {
     handleDisplay();
-    if (SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&event)) {
       switch (event.type) {
-        case SDL_VIDEORESIZE:
-          resizeSurface(event.resize.w, event.resize.h);
+        case SDL_WINDOWEVENT:
+          if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            resizeSurface(event.window.data1, event.window.data2);
+          }
           break;
         case SDL_KEYDOWN:
           handleKeyDown(&event);
           break;
         case SDL_KEYUP:
           handleKeyUp(&event);
+          break;
+        case SDL_CONTROLLERBUTTONDOWN:
+          handleButtonDown(&event);
+          break;
+        case SDL_CONTROLLERBUTTONUP:
+          handleButtonUp(&event);
+          break;
+        case SDL_CONTROLLERDEVICEADDED:
+          if (!controller) {
+            controller = SDL_GameControllerOpen(0);
+          }
+          break;
+        case SDL_CONTROLLERDEVICEREMOVED:
+          if (controller) {
+            SDL_GameControllerClose(controller);
+            controller = NULL;
+          }
           break;
         case SDL_QUIT:
           run = false;
@@ -255,18 +337,25 @@ static void eventLoop() {
     }
     SDL_Delay(10);
   }
+  handleQuit();
 }
 
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
-  if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
+  const Uint32 init_flags =
+    SDL_INIT_VIDEO |
+    SDL_INIT_AUDIO |
+    SDL_INIT_GAMECONTROLLER;
+
+  if (SDL_Init(init_flags) == -1) {
     std::cerr << "Could not initialize SDL: " << SDL_GetError() << std::endl;
     return 1;
   }
 
-  SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+  controller = SDL_GameControllerOpen(0);
+
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -275,7 +364,29 @@ int main(int argc, char** argv) {
   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-  SDL_WM_SetCaption("POLLY-B-GONE", "POLLY-B-GONE");
+
+  // Request legacy OpenGL profile for compatibility
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+
+  window = SDL_CreateWindow(
+    "POLLY-B-GONE",
+    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    defaultWidth, defaultHeight,
+    SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+  );
+
+  if (!window) {
+    fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
+    return 1;
+  }
+
+  glContext = SDL_GL_CreateContext(window);
+  if (!glContext) {
+    fprintf(stderr, "Failed to create GL context: %s\n", SDL_GetError());
+    return 1;
+  }
+
+  SDL_GL_SetSwapInterval(1);
 
   Sounds::initialize();
 
@@ -285,9 +396,13 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  /* pause game before initial resizing */
+  world->togglePaused();
+  //resizeSurface(defaultWidth, defaultHeight);
   toggleFullScreen();
+  world->togglePaused();
+
   eventLoop();
-  handleQuit();
 
   return 0;
 }

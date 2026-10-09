@@ -6,7 +6,11 @@
 #include <string>
 #include <string.h>
 
-#ifdef __linux__
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include <mach-o/dyld.h>
+#include <libgen.h>
+#elif defined(__linux__)
 #include <libgen.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -21,96 +25,99 @@
 
 using namespace mbostock;
 
-
-#if defined(__linux__) || defined(_WIN32)
-static std::string res; /* cached resources path */
-#endif
-
+static std::string resourcePath;
 
 #ifdef __linux__
-static inline std::string get_basename(const std::string &path) {
-  std::string copy = path;
-  return basename(std::data(copy));
-}
-
-static inline std::string get_dirname(const std::string &path) {
-  std::string copy = path;
-  return dirname(std::data(copy));
-}
-
-static inline std::string get_exe_dir() {
-  char* exe = realpath("/proc/self/exe", NULL);
-  if (!exe) return "";
-  std::string dir = get_dirname(exe);
-  free(exe);
-  return dir;
-}
-
 /* check if path exists and is a directory */
-static inline bool check_path(const std::string &path) {
+static inline bool check_resourcePath() {
   struct stat sb;
-  return (stat(path.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
+  return (stat(resourcePath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode));
 }
 #endif
 
+static void initResourcePath() {
+  if (!resourcePath.empty()) return;
 
-const char* Resources::path() {
-#ifdef __linux__
-
-  if (!res.empty()) {
-    return res.c_str();
+#ifdef __APPLE__
+  // Try to get the bundle resources path
+  CFBundleRef mainBundle = CFBundleGetMainBundle();
+  if (mainBundle) {
+    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+    if (resourcesURL) {
+      char path[PATH_MAX];
+      if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8*)path, PATH_MAX)) {
+        resourcePath = path;
+        resourcePath += "/";
+        CFRelease(resourcesURL);
+        return;
+      }
+      CFRelease(resourcesURL);
+    }
   }
+
+  // Fallback: get executable path and look for resources relative to it
+  char execPath[PATH_MAX];
+  uint32_t size = sizeof(execPath);
+  if (_NSGetExecutablePath(execPath, &size) == 0) {
+    char* dir = dirname(execPath);
+    resourcePath = dir;
+    resourcePath += "/../Resources/";
+    return;
+  }
+
+  // Last fallback
+  resourcePath = "Contents/Resources/";
+#elif defined(__linux__)
+  /* get full executable path */
+  char* execPath = realpath("/proc/self/exe", NULL);
+  if (execPath) {
+    char* dir = dirname(execPath);
+    std::string path = dir;
+    free(execPath);
+
+    /* check for LSB directory structure and resources inside <prefix>/share/ */
+    char* copy = strdup(path.c_str());
+    char* parent = basename(copy);
+    if (strcmp(parent, "bin") == 0 || path == "/usr/local/games" || path == "/usr/games") {
+      resourcePath = path;
+      resourcePath += "/../share/polly-b-gone/";
+      free(copy);
+      if (check_resourcePath()) return;
+    }
+    free(copy);
+
+    /* check for resources next to executable */
+    resourcePath = path;
+    resourcePath += "/resources/";
+    if (check_resourcePath()) return;
+  }
+
+  /* Fallback */
+  resourcePath = "resources/";
+#elif defined(_WIN32)
+  char execPath[MY_MAX_PATH];
+  char* ptr;
 
   /* get full executable path */
-  std::string dir = get_exe_dir();
-
-  if (!dir.empty()) {
-    /* LSB directory structure */
-    if (get_basename(dir) == "bin" || dir == "/usr/local/games" || dir == "/usr/games") {
-      res = get_dirname(dir); /* parent directory */
-      res += "/share/polly-b-gone/";
-
-      if (check_path(res)) {
-        return res.c_str();
-      }
-    }
-
+  DWORD dwRet = GetModuleFileNameA(NULL, execPath, sizeof(execPath));
+  if (dwRet > 0 && dwRet < sizeof(execPath) && (ptr = strrchr(execPath, '\\')) != NULL) {
     /* executable directory */
-    res = dir + "/resources/";
-
-    if (check_path(res)) {
-      return res.c_str();
-    }
+    *ptr = 0;
+    resourcePath = execPath;
+    resourcePath += "\\resources\\";
+    return;
   }
 
-  /* current directory (no check) */
-  res = "resources/";
-  return res.c_str();
-
-#elif defined(_WIN32)
-
-  if (!res.empty()) {
-    return res.c_str();
-  }
-
-  char buf[MY_MAX_PATH];
-  char* p;
-  DWORD dwRet = GetModuleFileNameA(NULL, buf, sizeof(buf));
-
-  if (dwRet > 0 && dwRet < sizeof(buf) && (p = strrchr(buf, '\\')) != NULL) {
-    /* executable directory */
-    *(p+1) = 0;
-    res = buf;
-  }
-
-  res += "resources\\";
-  return res.c_str();
-
-#elif defined(__APPLE__)
-  return "Contents/Resources/";
-#else
-  return "resources/";
+  /* Fallback */
+  resourcePath = ".\\resources\\";
+#else /* other platforms */
+  resourcePath = "resources/";
 #endif
+}
+
+const char* Resources::path() {
+  initResourcePath();
+  return resourcePath.c_str();
 }
 
 char* Resources::readFile(const char* p) {

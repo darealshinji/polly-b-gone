@@ -1,51 +1,43 @@
+ifneq ($(CROSS_PREFIX),)
+CXX        ?= $(CROSS_PREFIX)-c++
+PKG_CONFIG ?= $(CROSS_PREFIX)-pkg-config
+STRIP      ?= $(CROSS_PREFIX)-strip
+else
 PKG_CONFIG ?= pkg-config
 STRIP      ?= strip
-
-GL_CFLAGS        ?= $(shell $(PKG_CONFIG) --cflags gl)
-GL_LIBS          ?= $(shell $(PKG_CONFIG) --libs gl 2>/dev/null || echo '-lGL')
-GLU_CFLAGS       ?= $(shell $(PKG_CONFIG) --cflags glu)
-GLU_LIBS         ?= $(shell $(PKG_CONFIG) --libs glu 2>/dev/null || echo '-lGLU')
-GLUT_CFLAGS      ?= $(shell $(PKG_CONFIG) --cflags glut)
-GLUT_LIBS        ?= $(shell $(PKG_CONFIG) --libs glut 2>/dev/null || echo '-lglut')
-
-# MinGW32
-ifneq ($(shell $(CXX) -dumpmachine | grep mingw32),)
-GLEW_CFLAGS      ?= $(shell $(PKG_CONFIG) --cflags glew)
-GLEW_LIBS        ?= $(shell $(PKG_CONFIG) --libs glew 2>/dev/null || echo '-lglew32')
 endif
 
-SDL_CFLAGS       ?= $(shell $(PKG_CONFIG) --cflags sdl)
-SDL_LIBS         ?= $(shell $(PKG_CONFIG) --libs sdl)
-SDL_IMAGE_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags SDL_image)
-SDL_IMAGE_LIBS   ?= $(shell $(PKG_CONFIG) --libs SDL_image)
-SDL_MIXER_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags SDL_mixer)
-SDL_MIXER_LIBS   ?= $(shell $(PKG_CONFIG) --libs SDL_mixer)
+ifeq ($(shell $(CXX) -dumpmachine | grep mingw32),)
+OPENGL_LIBS ?= -lGL -lGLU -lglut
+else
+# MinGW32
+OPENGL_LIBS ?= -lopengl32 -lglu32 -lglut32 -lglew32
+endif
 
-TINYXML2_CFLAGS  ?= $(shell $(PKG_CONFIG) --cflags tinyxml2)
-TINYXML2_LIBS    ?= $(shell $(PKG_CONFIG) --libs tinyxml2)
+SDL2_CFLAGS       ?= $(shell $(PKG_CONFIG) --cflags sdl2)
+SDL2_LIBS         ?= $(shell $(PKG_CONFIG) --libs sdl2)
+SDL2_IMAGE_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags SDL2_image)
+SDL2_IMAGE_LIBS   ?= $(shell $(PKG_CONFIG) --libs SDL2_image)
+SDL2_MIXER_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags SDL2_mixer)
+SDL2_MIXER_LIBS   ?= $(shell $(PKG_CONFIG) --libs SDL2_mixer)
+TINYXML2_CFLAGS   ?= $(shell $(PKG_CONFIG) --cflags tinyxml2)
+TINYXML2_LIBS     ?= $(shell $(PKG_CONFIG) --libs tinyxml2)
 
 
-CXXFLAGS ?= -Wall -O3
+CXXFLAGS ?= -Wall -O3 #-std=c++11
 CXXFLAGS += \
-	$(GL_CFLAGS) \
-	$(GLU_CFLAGS) \
-	$(GLUT_CFLAGS) \
-	$(GLEW_CFLAGS) \
-	$(SDL_CFLAGS) \
-	$(SDL_IMAGE_CFLAGS) \
-	$(SDL_MIXER_CFLAGS) \
+	$(SDL2_CFLAGS) \
+	$(SDL2_IMAGE_CFLAGS) \
+	$(SDL2_MIXER_CFLAGS) \
 	$(TINYXML2_CFLAGS)
 
 LDFLAGS ?= -Wl,--as-needed
 
 LIBS = \
-	$(GL_LIBS) \
-	$(GLU_LIBS) \
-	$(GLUT_LIBS) \
-	$(GLEW_LIBS) \
-	$(SDL_LIBS) \
-	$(SDL_IMAGE_LIBS) \
-	$(SDL_MIXER_LIBS) \
+	$(OPENGL_LIBS) \
+	$(SDL2_LIBS) \
+	$(SDL2_IMAGE_LIBS) \
+	$(SDL2_MIXER_LIBS) \
 	$(TINYXML2_LIBS)
 
 NEW_OR_ORIG = new
@@ -97,7 +89,8 @@ obj/main.out: \
 	obj/tube.o \
 	obj/wall.o \
 	obj/world.o \
-	obj/worlds.o
+	obj/worlds.o \
+	obj/main.o
 
 obj/physics/particle_test.out: \
 	obj/physics/force.o \
@@ -133,3 +126,6 @@ obj/physics:
 
 clean:
 	rm -rf obj
+
+.PHONY: all clean
+

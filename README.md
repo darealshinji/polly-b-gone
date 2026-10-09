@@ -17,6 +17,20 @@
 
 The entire game world for Polly-B-Gone is specified as an XML file. You can edit world.xml to create new levels, new puzzles, and even change the music, textures and lighting! See the [full specification](doc/xml-format.html) or [wiki](https://github.com/mbostock/polly-b-gone/wiki) for details.
 
+## Controls
+
+ * Movement: WASD or arrow keys
+ * Next/previous room: Page Up/Page Down
+ * Reset room: R or Backspace
+ * Pause game: Space or Pause
+ * Volume control: + and -
+ * Exit game: ESC or Alt+F4
+ * Toggle shader: F9
+ * Toggle debugging mode: F10
+ * Toggle fullscreen: F11
+
+Simple gamepad supported is available but the game does not manage multiple gamepads simultaneously.
+
 ## Building
 
 The following dependencies are required for building on Ubuntu/Debian:

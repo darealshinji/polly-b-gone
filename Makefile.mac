@@ -1,20 +1,25 @@
+# Homebrew prefix
+HOMEBREW_PREFIX := $(shell brew --prefix 2>/dev/null || echo /opt/homebrew)
+
+# Compiler flags
 CXXFLAGS = \
 	-O2 \
-	-I/System/Library/Frameworks/GLUT.framework/Headers \
-	-I/System/Library/Frameworks/OpenGL.framework/Headers \
-	-I/System/Library/Frameworks/SDL.framework/Headers \
-	-I/System/Library/Frameworks/SDL_image.framework/Headers \
-	-I/System/Library/Frameworks/SDL_mixer.framework/Headers \
-	-I/System/Library/Frameworks/TinyXML2.framework/Headers
+	-std=c++11 \
+	-Wno-deprecated-declarations \
+	-I$(HOMEBREW_PREFIX)/include \
+	-I$(HOMEBREW_PREFIX)/include/SDL2
 
+# Linker flags
 LDFLAGS = \
 	-framework Cocoa \
-	-framework GLUT \
+	-framework CoreFoundation \
 	-framework OpenGL \
-	-framework SDL \
-	-framework SDL_image \
-	-framework SDL_mixer \
-	-framework TinyXML2
+	-framework GLUT \
+	-L$(HOMEBREW_PREFIX)/lib \
+	-lSDL2 \
+	-lSDL2_image \
+	-lSDL2_mixer \
+	-ltinyxml2
 
 NEW_OR_ORIG = new
 #NEW_OR_ORIG = original
@@ -67,7 +72,7 @@ obj/main.out : \
 	obj/wall.o \
 	obj/world.o \
 	obj/worlds.o \
-	src/SDLMain.m
+	obj/main.o
 
 obj/physics/particle_test.out : \
 	obj/physics/force.o \
@@ -89,13 +94,6 @@ obj/Polly-B-Gone.app : obj/main.out $(RESOURCES) resources/Info.plist Makefile
 	mkdir -p $@/Contents/Resources
 	cp resources/Info.plist $@/Contents
 	cp $(RESOURCES) $@/Contents/Resources
-	mkdir -p $@/Contents/Frameworks
-	cp -R /System/Library/Frameworks/SDL.framework $@/Contents/Frameworks
-	cp -R /System/Library/Frameworks/SDL_image.framework $@/Contents/Frameworks
-	cp -R /System/Library/Frameworks/SDL_mixer.framework $@/Contents/Frameworks
-	cp -R /System/Library/Frameworks/TinyXML.framework $@/Contents/Frameworks
-	find $@/Contents/Frameworks -name Headers | xargs rm -r
-#	ln -sf ../../../../resources/world.xml $@/Contents/Resources/world.xml
 
 obj/%.out : obj/%.o
 	$(CXX) $(LDFLAGS) -o $@ $^
@@ -110,3 +108,6 @@ obj/physics:
 
 clean:
 	rm -rf obj
+
+.PHONY: all clean
+
