@@ -1,8 +1,8 @@
 # Polly-B-Gone
 
-[https://www.cs.stanford.edu/people/mbostock/polly/](https://web.archive.org/web/20240707143904/https://www.cs.stanford.edu/people/mbostock/polly/)
+[https://cs.stanford.edu/people/mbostock/polly/](https://cs.stanford.edu/people/mbostock/polly/)
 
-**Polly-B-Gone** is a 3D physics platform game that tells the story of a plucky wheeled robot named Polly, who has been imprisoned by the nefarious Dr. Nurbs in his laboratory. Polly must overcome a series of increasingly-elaborate obstacles to escape and regain her freedom. Polly was my entry in the 2008 [CS 248](https://web.archive.org/web/20240707143904/http://graphics.stanford.edu/courses/cs248-08/) video game competition, and she won the grand prize!
+**Polly-B-Gone** is a 3D physics platform game that tells the story of a plucky wheeled robot named Polly, who has been imprisoned by the nefarious Dr. Nurbs in his laboratory. Polly must overcome a series of increasingly-elaborate obstacles to escape and regain her freedom. Polly was my entry in the 2008 [CS 248](https://graphics.stanford.edu/courses/cs248-08/) video game competition, and she won the grand prize!
 
 ## Screenshots
 

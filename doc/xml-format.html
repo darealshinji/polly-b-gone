@@ -1,8 +1,30 @@
 <html>
   <head>
     <title>Polly-B-Gone World XML Format</title>
-    <!-- link rel="stylesheet" type="text/css" href="https://cs.stanford.edu/people/mbostock/style.css"/ -->
+    <!-- <link rel="stylesheet" type="text/css" href="https://cs.stanford.edu/people/mbostock/style.css"/> -->
     <style type="text/css">
+      /* style.css begin */
+      body, th, td {
+        font-family: Lucida Grande, Arial;
+        font-size: 10pt;
+        max-width: 7.5in;
+      }
+      h1 {
+        font-size: 14pt;
+        font-weight: bold;
+      }
+      h2 {
+        font-size: 12pt;
+        font-weight: bold;
+      }
+      h2 + div {
+        margin-left: 1em;
+      }
+      pre {
+        margin-left: 2em;
+      }
+      /* style.css end */
+
       h3 a:link, h3 a:visited {
         color: black;
         text-decoration: none;
@@ -31,10 +53,10 @@
     </style>
   </head>
 <body>
- 
 <h1>Polly-B-Gone World XML Format</h1>
 
-<div><a href="./">Polly-B-Gone</a> uses an XML file to define the game
+<div><a href="https://cs.stanford.edu/people/mbostock/polly/">Polly-B-Gone</a>
+  uses an XML file to define the game
   world. The file is called <tt>world.xml</tt> and you'll find it inside the app
   bundle:
 
@@ -56,7 +78,7 @@
   <p/>I highly recommend you make a backup copy of the original
   <tt>world.xml</tt> file before making any edits. This way you can easily diff
   your changes and revert to a working version. (Or better yet,
-  use <a href="https://github.com/mbostock/polly-b-gone">git</a>.)
+  use <a href="https://cs.stanford.edu/people/mbostock/svn.html">SVN</a>.)
 </div>
 
 <h2><a name="world">Worlds</a></h2>
@@ -122,20 +144,20 @@
   on. Let's start by looking at a simple example:
 
 <pre>
-&lt;room name="hello-world" lighting="default"&gt;
-  &lt;camera-min x="-10" y="4" z="-5"/&gt;
-  &lt;camera-max x="10" y="10" z="10"/&gt;
+&lt;room name="hello-world" lighting="default">
+  &lt;camera-min x="-10" y="4" z="-5"/>
+  &lt;camera-max x="10" y="10" z="10"/>
 
-  &lt;origin name="start"&gt;
-    &lt;position x="0" y=".1" z="3"/&gt;
-    &lt;velocity x="1" y="0" z="0"/&gt;
-  &lt;/origin&gt;
+  &lt;origin name="start">
+    &lt;position x="0" y=".1" z="3"/>
+    &lt;velocity x="1" y="0" z="0"/>
+  &lt;/origin>
 
-  &lt;block material="concrete"&gt;
-    &lt;min x="-10" y="-100" z="-10"/&gt;
-    &lt;max x="10" y="0" z="10"/&gt;
-  &lt;/block&gt;
-&lt;/room&gt;
+  &lt;block material="concrete">
+    &lt;min x="-10" y="-100" z="-10"/>
+    &lt;max x="10" y="0" z="10"/>
+  &lt;/block>
+&lt;/room>
 </pre>
 
   <p/>Here we have a simple room, named "hello-world", that has only a single
@@ -215,7 +237,7 @@
       </tr>
       <tr>
         <th><a href="#wall">wall</a></th>
-        <td>A quadrilateral or triangle, with optional texture coordinates.</a>
+        <td>A quadrilateral or triangle, with optional texture coordinates.</td>
       </tr>
       <tr>
         <th><a href="#tube">tube</a></th>
@@ -389,11 +411,13 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the portal; a <a href="#vector">vector</a>.</td>
+        <td>The minimum bounds of the portal; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the portal; a <a href="#vector">vector</a>.</td>
+        <td>The maximum bounds of the portal; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
     </tbody>
   </table>
@@ -449,11 +473,13 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the box; a <a href="#vector">vector</a>. This field is used for axis-aligned boxes.</td>
+        <td>The minimum bounds of the box; a <a href="#vector"
+          >vector</a>. This field is used for axis-aligned boxes.</td>
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the box; a <a href="#vector">vector</a>. This field is used for axis-aligned boxes.</td>
+        <td>The maximum bounds of the box; a <a href="#vector"
+          >vector</a>. This field is used for axis-aligned boxes.</td>
       </tr>
       <tr>
         <th>c</th>
@@ -462,15 +488,18 @@
       </tr>
       <tr>
         <th>x</th>
-        <td>The X-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+        <td>The X-direction halfvector of the box; a <a href="#vector"
+          >vector</a>. This field is used for oriented boxes.</td>
       </tr>
       <tr>
         <th>y</th>
-        <td>The Y-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+        <td>The Y-direction halfvector of the box; a <a href="#vector"
+          >vector</a>. This field is used for oriented boxes.</td>
       </tr>
       <tr>
         <th>z</th>
-        <td>The Z-direction halfvector of the box; a <a href="#vector">vector</a>. This field is used for oriented boxes.</td>
+        <td>The Z-direction halfvector of the box; a <a href="#vector"
+          >vector</a>. This field is used for oriented boxes.</td>
       </tr>
     </tbody>
   </table>
@@ -727,15 +756,18 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The minimum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The maximum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>v</th>
-        <td>The surface velocity vector; a <a href="#vector">vector</a>. Typically this is along either the X- or Z-axis.</td>
+        <td>The surface velocity vector; a <a href="#vector"
+          >vector</a>. Typically this is along either the X- or Z-axis.</td>
       </tr>
     </tbody>
   </table>
@@ -784,11 +816,13 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The minimum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The maximum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>target</th>
@@ -848,11 +882,13 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The minimum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.</td>
+        <td>The maximum bounds of the box; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
     </tbody>
   </table>
@@ -1217,15 +1253,18 @@
     <tbody>
       <tr>
         <th>min</th>
-        <td>The minimum bounds of the box; a <a href="#vector">vector</a>.
+        <td>The minimum bounds of the box; a <a href="#vector"
+          >vector</a>.
       </tr>
       <tr>
         <th>max</th>
-        <td>The maximum bounds of the box; a <a href="#vector">vector</a>.
+        <td>The maximum bounds of the box; a <a href="#vector"
+          >vector</a>.
       </tr>
       <tr>
         <th>force</th>
-        <td>The force vector; a <a href="#vector">vector</a>.</td>
+        <td>The force vector; a <a href="#vector"
+          >vector</a>.</td>
       </tr>
     </tbody>
   </table>
@@ -1287,23 +1326,3 @@
 </div>
 
 <p><i style="font-size:smaller;">Last updated December 5, 2008 by mbostock.</i>
-<!--
-     FILE ARCHIVED ON 07:37:41 Dec 16, 2019 AND RETRIEVED FROM THE
-     INTERNET ARCHIVE ON 16:26:56 Oct 09, 2024.
-     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
-
-     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
-     SECTION 108(a)(3)).
--->
-<!--
-playback timings (ms):
-  captures_list: 0.528
-  exclusion.robots: 0.027
-  exclusion.robots.policy: 0.015
-  esindex: 0.012
-  cdx.remote: 29.449
-  LoadShardBlock: 441.301 (3)
-  PetaboxLoader3.datanode: 193.714 (5)
-  PetaboxLoader3.resolve: 625.108 (4)
-  load_resource: 429.028 (2)
--->
