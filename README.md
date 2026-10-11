@@ -37,19 +37,13 @@ The following dependencies are required for building on Ubuntu/Debian:
 ```
 sudo apt install \
   build-essential \
-  autoconf \
-  automake \
   pkg-config \
   libgl1-mesa-dev \
   libglu1-mesa-dev \
   libgles2-mesa-dev \
   libglut-dev \
-  libsdl1.2-dev \
-  libsdl-image1.2-dev \
-  libsdl-mixer1.2-dev \
+  libsdl2-dev \
+  libsdl2-image-dev \
+  libsdl2-mixer-dev \
   libtinyxml2-dev
 ```
-
-## Third-Party Content
-
-[Texturama](http://texturama.com/) provided the textures for the ceramic, concrete, and drain materials. These images are copyright XY3D, Texturama, and Eric Brian Smith and may not be redistributed for any other purpose without the permission of the copyright holders. The clover and ivy textures are from the [Blender for Architecture](http://blender-archi.tuxfamily.org/) website and are distributed via the Creative Commons Attribution License version 2.5. The MIDI files for the background music come from the "Very Best of GUS MIDI" collection, which is available from the SDL_mixer website (see above). According to the compilation author, "all of these MIDI files are freely distributable, but most of them are copyrighted."

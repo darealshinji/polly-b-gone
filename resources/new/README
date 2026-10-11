@@ -1,6 +1,4 @@
-Some of the files were modified.
-You can find the original files and sources in a different branch:
-https://github.com/darealshinji/polly-b-gone/tree/resources-source
+All these game files are available under GPL compatible licenses.
 
 Name: ceramic.jpg
 Source: http://opengameart.org/node/26809
@@ -34,16 +32,18 @@ Copyright: 2012 H-Hour (http://opengameart.org/users/h-hour)
 License: GPL-2+ or public-domain
 
 Name: intro.ogg
+Original: Melody++.mp3
 Source: http://opengameart.org/content/melody
 Copyright: 2015 Martin Opsahl (http://opengameart.org/users/pugly)
 License: GPL-2 or GPL-3 or CC-BY-3.0 or CC-BY-SA-3.0
 
-Name: loop.ogg
+Name: loop.ogg (happy game theme loop.ogg)
 Source: http://opengameart.org/content/happy-game-theme-demo
 Copyright: 2014 Henrique Cardoso <estudiocafofo@globo.com>
 License: GPL-3
 
 Files: outro.ogg
+Original: Kelly's Sweet Dinosaur.mp3
 Source: http://opengameart.org/content/kellys-sweet-dinosaur
 Copyright: 2015 Martin Opsahl (http://opengameart.org/users/pugly)
 License: GPL-2 or GPL-3 or CC-BY-3.0 or CC-BY-SA-3.0
