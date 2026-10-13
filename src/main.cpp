@@ -335,7 +335,7 @@ static void eventLoop() {
           break;
       }
     }
-    SDL_Delay(10);
+    //SDL_Delay(10);
   }
   handleQuit();
 }
